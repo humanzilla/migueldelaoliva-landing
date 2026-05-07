@@ -3,7 +3,7 @@ locale = "es-BO"
 defaultContentLanguage = "es"
 title = "Dr. Miguel de la Oliva | Psiquiatra Especialista en Autismo y Adicciones | Santa Cruz, Bolivia"
 enableRobotsTXT = true
-enableGitInfo = true
+enableGitInfo = false
 
 [languages.es]
   label = "Español"
