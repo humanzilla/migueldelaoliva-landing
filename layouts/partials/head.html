@@ -1,0 +1,48 @@
+{{- $title := cond .IsHome site.Title (printf "%s | %s" .Title site.Title) -}}
+{{- $description := .Params.description | default site.Params.description -}}
+{{- $ogImage := .Params.ogImage | default site.Params.ogImage -}}
+{{- $ogImageURL := absURL $ogImage -}}
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="{{ site.Params.themeColor }}">
+<title>{{ $title }}</title>
+<meta name="description" content="{{ $description }}">
+{{- with site.Params.keywords }}
+<meta name="keywords" content="{{ delimit . ", " }}">
+{{- end }}
+<meta name="author" content="{{ site.Params.author }}">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<link rel="canonical" href="{{ .Permalink }}">
+
+<!-- Open Graph -->
+<meta property="og:site_name" content="{{ site.Title }}">
+<meta property="og:title" content="{{ cond .IsHome "Dr. Miguel de la Oliva - Especialista en Salud Mental" $title }}">
+<meta property="og:description" content="{{ cond .IsHome "La salud mental no es un lujo. Es un derecho. Especialista en autismo y adicciones en Santa Cruz, Bolivia." $description }}">
+<meta property="og:type" content="{{ cond .IsHome "website" "article" }}">
+<meta property="og:url" content="{{ .Permalink }}">
+<meta property="og:locale" content="es_BO">
+<meta property="og:image" content="{{ $ogImageURL }}">
+<meta property="og:image:alt" content="{{ site.Params.author }}">
+
+<!-- Twitter -->
+<meta name="twitter:card" content="{{ site.Params.twitterCard }}">
+<meta name="twitter:title" content="{{ $title }}">
+<meta name="twitter:description" content="{{ $description }}">
+<meta name="twitter:image" content="{{ $ogImageURL }}">
+
+<!-- Feeds -->
+{{- range .AlternativeOutputFormats }}
+  {{- printf `<link rel="%s" type="%s" href="%s" title="%s">` .Rel .MediaType.Type .Permalink site.Title | safeHTML }}
+{{- end }}
+
+<!-- Favicons -->
+<link rel="icon" type="image/jpeg" href="/images/profile-miguel-oliva.jpg">
+<link rel="apple-touch-icon" href="/images/profile-miguel-oliva.jpg">
+
+<!-- Styles -->
+{{- $css := resources.Get "css/main.css" | minify | fingerprint -}}
+<link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
+
+{{- if .IsHome }}
+{{- partial "schema.html" . -}}
+{{- end }}

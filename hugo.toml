@@ -1,13 +1,16 @@
 baseURL = "https://migueldelaoliva.com/"
-languageCode = "es-BO"
+locale = "es-BO"
 defaultContentLanguage = "es"
 title = "Dr. Miguel de la Oliva | Psiquiatra Especialista en Autismo y Adicciones | Santa Cruz, Bolivia"
 enableRobotsTXT = true
 enableGitInfo = true
 
 [languages.es]
-  languageName = "Español"
+  label = "Español"
   weight = 1
+
+# No taxonomies on this site
+disableKinds = ["taxonomy", "term"]
 
 [params]
   description = "Dr. Miguel de la Oliva, psiquiatra especialista en autismo y adicciones en Santa Cruz de la Sierra. Consultas clínicas, educación en salud mental y apoyo a familias."

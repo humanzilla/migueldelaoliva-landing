@@ -1,0 +1,125 @@
+{{ define "main" }}
+{{- $hero := site.Params.hero -}}
+{{- $contact := site.Params.contact -}}
+<section class="hero">
+  <div class="container">
+    <div class="hero-content">
+      <h1 class="headline">
+        <img src="{{ $hero.photo }}" alt="{{ site.Params.author }}" width="96" height="96" class="hero-photo" loading="eager" decoding="async">
+        <br>
+        {{ $hero.name }}
+      </h1>
+      <p class="big-text">{{ $hero.intro }}</p>
+
+      <ul class="social-links" aria-label="Redes sociales">
+        {{- range hugo.Data.social }}
+        <li>
+          <a href="{{ .url }}" rel="noopener noreferrer me" target="_blank" aria-label="{{ .name }}">
+            {{ partial "social-icon.html" .icon }}
+            <span>{{ .name }}</span>
+          </a>
+        </li>
+        {{- end }}
+      </ul>
+
+      <a href="#contacto" class="cta-button">{{ $hero.cta }}</a>
+    </div>
+  </div>
+</section>
+
+<section id="historia" class="story">
+  <div class="container">
+    <h2 class="section-title">¿Quién soy y por qué hago esto?</h2>
+    <div class="story-grid">
+      <div class="story-text">
+        {{ .Content }}
+      </div>
+      <div class="credentials-box">
+        <h3>¿Por qué puedo ayudarte?</h3>
+        <ul class="credentials-list">
+          {{- range hugo.Data.credentials }}
+          <li>{{ . }}</li>
+          {{- end }}
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="servicios" class="what-i-do">
+  <div class="container">
+    <h2 class="section-title">Así es como trabajo contigo</h2>
+    <div class="services-intro">
+      <p class="big-text">Cada historia es distinta<br>Y eso cambia todo.</p>
+    </div>
+    <div class="services-grid">
+      {{- range hugo.Data.services }}
+      <div class="service-item">
+        <h3>{{ .title }}</h3>
+        {{ .description | markdownify }}
+      </div>
+      {{- end }}
+    </div>
+  </div>
+</section>
+
+<section class="mission">
+  <div class="container">
+    <h2 class="section-title">Mi propósito es simple</h2>
+    <p class="mission-text">
+      <strong>Que nadie tenga que esconder quién es para ser aceptado.</strong><br>
+      Quiero que los padres no tengan miedo del diagnóstico de sus hijos.
+      Que quienes están en recuperación encuentren apoyo, no vergüenza.
+      Y que ser diferente deje de ser una carga, para convertirse en una fuerza.
+    </p>
+  </div>
+</section>
+
+<section id="contacto" class="contact">
+  <div class="container">
+    <div class="contact-intro">
+      <h2 class="section-title">Trabajemos juntos</h2>
+      <p class="big-text">Estás a una conversación de comenzar algo nuevo. No tienes que hacerlo solo.</p>
+    </div>
+
+    <div class="contact-grid">
+      <div class="contact-info">
+        <h3>Información de Consulta</h3>
+
+        <div class="contact-item">
+          <strong>Ubicación</strong>
+          <p>{{ $contact.clinic }}</p>
+          <p>{{ $contact.addressLine }}</p>
+          <a href="tel:{{ $contact.phoneE164 }}">{{ $contact.phone }}</a>
+          <span>{{ $contact.city }}, {{ $contact.country }}</span>
+        </div>
+
+        <div class="contact-item">
+          <strong>Horarios</strong>
+          <span>{{ $contact.hours }}</span>
+        </div>
+
+        <div class="contact-item">
+          <strong>Especialidades</strong>
+          <span>{{ $contact.specialties }}</span>
+        </div>
+
+        <div class="contact-item">
+          <strong>Modalidad</strong>
+          <span>{{ $contact.modality }}</span>
+        </div>
+
+        <div class="contact-item">
+          <strong>Seguros</strong>
+          <span>{{ $contact.insurance }}</span>
+        </div>
+      </div>
+
+      <div class="contact-form">
+        <h3>Agendamiento en línea</h3>
+        <strong>Próximamente</strong>
+      </div>
+    </div>
+  </div>
+</section>
+{{ end }}
