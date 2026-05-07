@@ -1,0 +1,8 @@
+.git
+.gitignore
+public
+resources
+.hugo_build.lock
+node_modules
+.DS_Store
+README.md
