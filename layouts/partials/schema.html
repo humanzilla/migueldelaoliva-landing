@@ -1,41 +1,10 @@
 {{- $contact := site.Params.contact -}}
-{{- $physician := dict
-  "@context" "https://schema.org"
-  "@type" "Physician"
-  "name" site.Params.author
-  "alternateName" "Dr. Miguel de la Oliva"
-  "url" site.BaseURL
-  "image" (absURL site.Params.ogImage)
-  "description" site.Params.description
-  "medicalSpecialty" (slice "Psychiatric" "Addiction")
-  "knowsAbout" (slice "Autismo" "Trastornos del Espectro Autista" "Adicciones" "Salud Mental" "Terapia Familiar")
-  "telephone" $contact.phoneE164
-  "address" (dict
-    "@type" "PostalAddress"
-    "streetAddress" $contact.addressLine
-    "addressLocality" $contact.city
-    "addressRegion" $contact.region
-    "addressCountry" $contact.countryCode)
-  "worksFor" (dict
-    "@type" "MedicalOrganization"
-    "name" $contact.clinic
-    "address" (dict
-      "@type" "PostalAddress"
-      "streetAddress" $contact.addressLine
-      "addressLocality" $contact.city
-      "addressRegion" $contact.region
-      "addressCountry" $contact.countryCode)
-    "telephone" $contact.phoneE164)
-  "openingHours" $contact.schemaHours
-  "areaServed" (dict "@type" "City" "name" $contact.city)
--}}
-{{- $website := dict
-  "@context" "https://schema.org"
-  "@type" "WebSite"
-  "url" site.BaseURL
-  "name" site.Title
-  "inLanguage" "es-BO"
-  "description" site.Params.description
--}}
+{{- $addr := dict "@type" "PostalAddress" "streetAddress" $contact.addressLine "addressLocality" $contact.city "addressRegion" $contact.region "addressCountry" $contact.countryCode -}}
+{{- $clinic := dict "@type" "MedicalOrganization" "name" $contact.clinic "address" $addr "telephone" $contact.phoneE164 -}}
+{{- $area := dict "@type" "City" "name" $contact.city -}}
+{{- $specialties := slice "Psychiatric" "Addiction" -}}
+{{- $knows := slice "Autismo" "Trastornos del Espectro Autista" "Adicciones" "Salud Mental" "Terapia Familiar" -}}
+{{- $physician := dict "@context" "https://schema.org" "@type" "Physician" "name" site.Params.author "alternateName" "Dr. Miguel de la Oliva" "url" site.BaseURL "image" (absURL site.Params.ogImage) "description" site.Params.description "medicalSpecialty" $specialties "knowsAbout" $knows "telephone" $contact.phoneE164 "address" $addr "worksFor" $clinic "openingHours" $contact.schemaHours "areaServed" $area -}}
+{{- $website := dict "@context" "https://schema.org" "@type" "WebSite" "url" site.BaseURL "name" site.Title "inLanguage" "es-BO" "description" site.Params.description -}}
 <script type="application/ld+json">{{ $physician | jsonify | safeJS }}</script>
 <script type="application/ld+json">{{ $website | jsonify | safeJS }}</script>
