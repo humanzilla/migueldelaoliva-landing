@@ -90,7 +90,7 @@
           <strong>Ubicación</strong>
           <p>{{ $contact.clinic }}</p>
           <p>{{ $contact.addressLine }}</p>
-          <a href="tel:{{ $contact.phoneE164 }}">{{ $contact.phone }}</a>
+          <a href="https://wa.me/{{ replace $contact.phoneE164 "+" "" }}" rel="noopener noreferrer" target="_blank">{{ $contact.phone }} (WhatsApp)</a>
           <span>{{ $contact.city }}, {{ $contact.country }}</span>
         </div>
 

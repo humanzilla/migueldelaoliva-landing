@@ -1,18 +1,12 @@
 - name: Instagram
-  url: https://www.instagram.com/
+  url: https://www.instagram.com/drdelaolivapsiquiatra/
   icon: instagram
-- name: YouTube
-  url: https://www.youtube.com/
-  icon: youtube
+- name: TikTok
+  url: https://www.tiktok.com/@drdelaolivapsiquiatra
+  icon: tiktok
 - name: Facebook
-  url: https://www.facebook.com/
+  url: https://www.facebook.com/drmiguel.delaolivapsiquiatra
   icon: facebook
-- name: LinkedIn
-  url: https://www.linkedin.com/
-  icon: linkedin
-- name: Substack
-  url: https://substack.com/
-  icon: substack
-- name: Podcast
-  url: https://podcastindex.org/
-  icon: podcast
+- name: YouTube
+  url: https://www.youtube.com/@miguelpsiq
+  icon: youtube
