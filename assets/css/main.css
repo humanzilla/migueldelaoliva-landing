@@ -308,7 +308,13 @@ nav {
   font-size: 0.975rem;
 }
 
+.contact-item address {
+  font-style: normal;
+}
+
 .contact-item a {
+  display: block;
+  margin-top: 0.5rem;
   color: #1f2937;
   text-decoration: none;
 }

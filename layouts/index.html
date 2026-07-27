@@ -88,10 +88,14 @@
 
         <div class="contact-item">
           <strong>Ubicación</strong>
-          <p>{{ $contact.clinic }}</p>
-          <p>{{ $contact.addressLine }}</p>
+          <address>
+            <p>{{ $contact.clinic }}</p>
+            <p>{{ $contact.building }}</p>
+            <p>{{ $contact.addressLine }}, {{ $contact.unit }}</p>
+            <span>{{ $contact.city }}, {{ $contact.country }}</span>
+          </address>
+          <a href="{{ $contact.mapUrl }}" rel="noopener noreferrer" target="_blank">Ver en Google Maps</a>
           <a href="https://wa.me/{{ replace $contact.phoneE164 "+" "" }}" rel="noopener noreferrer" target="_blank">{{ $contact.phone }} (WhatsApp)</a>
-          <span>{{ $contact.city }}, {{ $contact.country }}</span>
         </div>
 
         <div class="contact-item">

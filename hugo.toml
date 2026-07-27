@@ -1,51 +1,66 @@
-baseURL = "https://www.migueldelaoliva.com/"
-locale = "es-BO"
+baseURL                = "https://www.migueldelaoliva.com/"
+locale                 = "es-BO"
 defaultContentLanguage = "es"
-title = "Dr. Miguel de la Oliva | Psiquiatra Especialista en Autismo y Adicciones | Santa Cruz, Bolivia"
-enableRobotsTXT = true
-enableGitInfo = false
+title                  = "Dr. Miguel de la Oliva | Psiquiatra Especialista en Autismo y Adicciones | Santa Cruz, Bolivia"
+enableRobotsTXT        = true
+enableGitInfo          = false
 
 [languages.es]
-  label = "Español"
+  label  = "Español"
   weight = 1
 
-# No taxonomies on this site
-disableKinds = ["taxonomy", "term"]
+  # No taxonomies on this site
+  disableKinds = ["taxonomy", "term"]
 
 [params]
   description = "Dr. Miguel de la Oliva, psiquiatra especialista en autismo y adicciones en Santa Cruz de la Sierra. Consultas clínicas, educación en salud mental y apoyo a familias."
-  keywords = ["psiquiatra", "autismo", "adicciones", "salud mental", "Santa Cruz", "Bolivia", "consulta psiquiátrica", "terapia", "inclusión"]
+  keywords = [
+    "psiquiatra",
+    "autismo",
+    "adicciones",
+    "salud mental",
+    "Santa Cruz",
+    "Bolivia",
+    "consulta psiquiátrica",
+    "terapia",
+    "inclusión",
+  ]
   author = "Dr. Miguel Angel de la Oliva"
   ogImage = "/images/profile-miguel-oliva.jpg"
   twitterCard = "summary_large_image"
   themeColor = "#1f2937"
 
   [params.contact]
-    clinic = "Clínica NeuroPsiquiátrica Monte Sinaí"
-    addressLine = "3er Anillo Externo"
-    city = "Santa Cruz de la Sierra"
-    region = "Santa Cruz"
-    country = "Bolivia"
+    clinic      = "Clínica NeuroPsiquiátrica Monte Sinaí"
+    building    = "Edificio Las Palmas Golf View"
+    addressLine = "Avenida Ibérica y Calle 2"
+    unit        = "Piso 2, Apartamento 20"
+    city        = "Santa Cruz de la Sierra"
+    region      = "Santa Cruz"
+    country     = "Bolivia"
     countryCode = "BO"
-    phone = "+591 6000 5594"
-    phoneE164 = "+59160005594"
-    hours = "Lunes a Sábados: 15:00 - 18:00"
+    latitude    = -17.8035547
+    longitude   = -63.2099454
+    mapUrl      = "https://maps.app.goo.gl/rxsUtVZS3LtbASoN6"
+    phone       = "+591 6000 5594"
+    phoneE164   = "+59160005594"
+    hours       = "Lunes a Sábados: 15:00 - 18:00"
     schemaHours = "Mo-Sa 15:00-18:00"
     specialties = "Autismo • Adicciones • Salud Mental General"
-    modality = "Consulta presencial"
-    insurance = "Consulta por convenios disponibles"
+    modality    = "Consulta presencial"
+    insurance   = "Consulta por convenios disponibles"
 
   [params.hero]
-    name = "Dr. Miguel de la Oliva"
+    name  = "Dr. Miguel de la Oliva"
     photo = "/images/profile-miguel-oliva.jpg"
     intro = "Soy el Dr. Miguel de la Oliva, psiquiatra especializado en autismo y adicciones. Creo profundamente que cada persona merece ser escuchada, aceptada e incluida en nuestra sociedad."
-    cta = "Hablemos"
+    cta   = "Hablemos"
 
 [markup.goldmark.renderer]
   unsafe = true
 
 [minify]
-  disableXML = true
+  disableXML   = true
   minifyOutput = true
 
 [outputs]
@@ -53,8 +68,8 @@ disableKinds = ["taxonomy", "term"]
 
 [sitemap]
   changefreq = "monthly"
-  filename = "sitemap.xml"
-  priority = 0.5
+  filename   = "sitemap.xml"
+  priority   = 0.5
 
 [security]
   [security.funcs]
