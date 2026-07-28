@@ -312,11 +312,68 @@ nav {
   font-style: normal;
 }
 
-.contact-item a {
+.map-embed {
+  margin-top: 1rem;
+  border-radius: 8px;
+  overflow: hidden;
+  line-height: 0;
+}
+
+.map-embed iframe {
+  width: 100%;
+  height: 220px;
+  border: 0;
   display: block;
-  margin-top: 0.5rem;
-  color: #1f2937;
+}
+
+.contact-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.btn-contact {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.1rem;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 600;
   text-decoration: none;
+  line-height: 1;
+  transition: all 0.2s ease;
+}
+
+.btn-contact svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+.btn-contact--maps {
+  background: #fff;
+  color: #1f2937;
+  border: 1.5px solid #1f2937;
+}
+
+.btn-contact--maps:hover {
+  background: #1f2937;
+  color: #fff;
+}
+
+.btn-contact--whatsapp {
+  background: #25d366;
+  color: #fff;
+  border: 1.5px solid #25d366;
+}
+
+.btn-contact--whatsapp:hover {
+  background: #1ebe5b;
+  border-color: #1ebe5b;
+  transform: translateY(-1px);
 }
 
 .contact-form {
