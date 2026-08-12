@@ -31,7 +31,6 @@ enableGitInfo          = false
   themeColor = "#1f2937"
 
   [params.contact]
-    clinic      = ""
     building    = "Edificio Las Palmas Golf View"
     addressLine = "Avenida Ibérica y Calle 2"
     unit        = "Piso 2, Apartamento 20"
