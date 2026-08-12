@@ -24,7 +24,7 @@ block, insurance/`seguros` copy. These need answers from the doctor first.
 | W2 — WhatsApp primary CTA | 2 | ✅ **Done** — 2026-08-12 |
 | W3 + W1 — Dead box → message composer | 2 | ⬜ Not started |
 | W14 — Map click-to-load facade | 3 | ✅ **Done** — 2026-08-12 |
-| W15 — GA4 + conversion tracking | 3 | ⬜ Not started |
+| W15 — GA4 + conversion tracking | 3 | ✅ **Done** — 2026-08-12 |
 | W12b — Voice and tone sweep | 4 | ⬜ Not started |
 | W16 — Commit the finished-but-uncommitted items | — | ⬜ Not started |
 
@@ -1000,7 +1000,92 @@ claude "Read TODO.md and implement work item W14: convert the Google Maps iframe
 
 ---
 
-## W15 — Google Analytics 4 and WhatsApp conversion tracking
+## W15 — Google Analytics 4 and WhatsApp conversion tracking ✅ DONE
+
+### Outcome — 2026-08-12
+
+GA4 is installed through `layouts/partials/analytics.html`, and every WhatsApp link on the
+site reports **where** it was tapped and nothing else. Measured, not assumed: a visitor who
+asks for Do Not Track makes **zero requests to Google** — not a reduced set, none.
+
+- **Files changed:** `layouts/partials/analytics.html` (new), `hugo.toml`
+  (`[services.googleAnalytics]`, `[privacy.googleAnalytics]`), `layouts/partials/head.html`
+  (one partial call), `assets/js/main.js` (third IIFE), `layouts/partials/footer.html`
+  (privacy line), `assets/css/main.css` (`.footer-privacy`).
+- **`layouts/index.html` was not touched.** W2 landed while this item was being planned and
+  its `whatsapp-cta.html` partial already stamps `data-cta` on all four CTAs, so the
+  attribute work this item expected to do was already done. See the ordering note below.
+
+**Verified** — `hugo --gc --minify` builds clean (4 pages, no warnings). Playwright MCP
+headless `--isolated` per CLAUDE.md, against the built `public/` copied to a scratch
+directory and served on port 1515 (1399 and 1414 belong to other sessions).
+
+| # | Check | Result |
+| --- | --- | --- |
+| 1 | Snippet renders, ID is a JS string literal | `gtag("config","G-DPX00H2N9R",…)` — the `jsonify`-free `{{ $id }}` path escapes correctly |
+| 2 | `data-cta` values in the built page | exactly four: `hero`, `mid`, `contact`, `sticky` |
+| 3 | Normal load | gtag.js fetched, `page_view` hit sent, `npa=1` on the wire — ad personalization really is off |
+| 4 | **All four CTAs fire** | `whatsapp_click` with `placement` = hero / mid / contact / sticky |
+| 5 | **The hits reach the wire correctly** | POST body of the batched `/g/collect`: `en=whatsapp_click&_ee=1&ep.placement=hero`, then `mid`, `contact`, `sticky`. No other event parameters |
+| 6 | **Allowlist holds** | `data-cta` forced to `motivo-autismo`, `consumo`, `ansiedad` and to absent → all reported as `other`. Only the bare `motivo` sentinel passes through |
+| 7 | **Do Not Track** | `navigator.doNotTrack = '1'` injected via `addInitScript` before page scripts: **0 Google requests**, `gtag` and `dataLayer` both `undefined`, footer line still shown |
+| 8 | **Scripting disabled** | 0 Google requests, footer line present (server-rendered), all 6 sections `opacity: 1`, 4 WhatsApp links intact |
+| 9 | Reduced motion | `js-reveal` never armed, all sections opaque, **and the CTA is still tracked** — confirms W8's hand-off note was honoured: the tracking IIFE is independent of the reveal IIFE, which returns early |
+| 10 | Console | 0 errors, 0 warnings |
+
+**This item ends W14's "zero third-party requests on page load".** For a visitor who has not
+set DNT, the page now fetches `googletagmanager.com/gtag/js` and posts to
+`google-analytics.com`. That is W15's intended effect and not a regression, but W14's
+Outcome claims that property in the present tense and a reader deserves to see it
+superseded here rather than discover it. What survives of W14's reasoning is the shape:
+nothing third-party loads for someone who asked not to be tracked, and the map still waits
+for a click.
+
+**Deviations — four, all deliberate:**
+
+- **Ran before W3+W1**, and originally before W2. The item says run last. W2 landed in the
+  working tree mid-plan, which removed most of the risk; W3+W1 is still outstanding. Nothing
+  needs revisiting when it lands: the listener is delegated over `a[href*="wa.me/"]`, so the
+  composer's links are tracked the moment they exist, with no analytics work in that item.
+- **The ID lives in `[services.googleAnalytics]`, not `[params]`** as the item suggested.
+  `site.Config.Services.GoogleAnalytics.ID` and the whole `[privacy.googleAnalytics]`
+  mechanism read that location; a `[params]` key is invisible to both, so the item's literal
+  instruction would have produced a config nothing consults.
+- **Hand-rolled instead of `_internal/google_analytics.html`.** Evaluated first, as the item
+  asked. Hugo 0.164's built-in emits `<script async src="…/gtag/js">` *outside* its DNT
+  check — `respectDoNotTrack` only skips the `config` call — so a DNT visitor still
+  downloads gtag.js and lands in Google's logs. It also declares `gtag` inside an `if`
+  block, leaving it undefined under DNT. Fifteen lines fixes both. `respectDoNotTrack = true`
+  is set explicitly even though `hugo config` shows it is already Hugo 0.164's default, so
+  the intent survives a change to that default.
+- **`allow_google_signals: false` and `allow_ad_personalization_signals: false`**, beyond
+  the brief. Keeps this traffic out of Google Ads audiences and demographic reporting.
+  Confirmed on the wire as `npa=1`. `anonymize_ip` was *not* added — it is obsolete in GA4.
+
+**The `PLACEMENTS` allowlist in `main.js` is the privacy control, not decoration.** The item
+recommends tracking placement but never the motive; an allowlist makes that
+impossible-to-violate-from-markup rather than merely intended. **Note for W3+W1:** any new
+`data-cta` must be one of `hero` / `mid` / `sticky` / `contact` / `motivo`. Do **not** encode
+the motive in it — `data-cta="motivo-autismo"` will report as `other` (check 6 above), by
+design. If per-motive breakdown is ever wanted, it needs the explicit decision this item's
+privacy note calls for, not a widened list.
+
+**Not done — off-site, and blocked on account access, not effort:**
+
+- **GA4 Realtime was not checked.** Check 5 proves a correctly-formed hit leaves the
+  browser; it does not prove the property received it. That needs the doctor's GA4 account.
+- **`placement` must be registered as an event-scoped custom dimension** in the GA4 UI, or
+  it is collected but never reportable — the numbers would look like a single undifferentiated
+  `whatsapp_click` count. `whatsapp_click` should also be marked a key event.
+- `vercel.json` needed no change: there is no CSP header, and `X-Frame-Options` /
+  `Permissions-Policy` do not affect this.
+
+**Commit hygiene:** `hugo.toml`, `main.css`, `main.js`, `head.html` and `TODO.md` all
+carried uncommitted work from W12a, W7, W8 and W2 when this ran. Staged as W15-only blobs
+built from `HEAD` plus this item's hunks (`git hash-object` + `git update-index` against a
+private `GIT_INDEX_FILE`), so the commit reverts cleanly and nobody else's in-progress work
+was swept in. Same discipline as W6, W8, W9 and W14. See W16 — the backlog it describes is
+now larger, not smaller.
 
 ### Context
 

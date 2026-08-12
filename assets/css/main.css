@@ -515,6 +515,14 @@ footer p {
   font-size: 0.9rem;
 }
 
+/* Nota de analítica. Hereda el gris de `footer p`; el tamaño es el mismo
+   0.8125rem que ya usa .map-facade__note. */
+.footer-privacy {
+  margin: 0.5rem auto 0;
+  max-width: 40rem;
+  font-size: 0.8125rem;
+}
+
 /* Social */
 .social-links {
   list-style: none;

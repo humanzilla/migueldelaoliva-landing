@@ -64,3 +64,41 @@ if (hero) {
     iframe.focus();
   }, { once: true });
 })();
+
+// WhatsApp conversion tracking.
+//
+// One delegated listener on <document>, not per-CTA wiring: every wa.me link
+// counts, including ones that do not exist yet. W2's whatsapp-cta.html partial
+// stamps data-cta on each of them, and W1's motive links will come through the
+// same partial — so neither item has any analytics work to do.
+//
+// PRIVACY — this is a rule, not a preference. What gets sent is WHERE the button
+// was tapped. What never gets sent is what the visitor wanted to consult about.
+// A motive (autismo, TDAH, consumo…) joined to a GA4 client ID is a health-data
+// record; Google's own policy forbids it and it has no business on this site.
+//
+// The PLACEMENTS allowlist is what enforces that, and it is the reason this is a
+// list rather than a passthrough: if a future data-cta ever carries a motive —
+// data-cta="motivo-autismo" — it collapses to 'other' instead of shipping a
+// health fact to Google. Markup alone cannot leak. Widen this list deliberately
+// or not at all. See W15 in TODO.md and prohibition 6 in CLAUDE.md.
+
+(() => {
+  const PLACEMENTS = ['hero', 'mid', 'sticky', 'contact', 'motivo'];
+
+  document.addEventListener('click', event => {
+    const link = event.target.closest('a[href*="wa.me/"]');
+    if (!link) return;
+
+    // gtag is absent when the visitor asked for Do Not Track, when a blocker
+    // stopped the load, or when no measurement ID is configured. Nothing to do.
+    if (typeof window.gtag !== 'function') return;
+
+    // No transport_type: 'beacon' needed — every WhatsApp link is target="_blank",
+    // so the page is not unloaded and the hit has time to leave.
+    const cta = link.dataset.cta;
+    window.gtag('event', 'whatsapp_click', {
+      placement: PLACEMENTS.includes(cta) ? cta : 'other',
+    });
+  });
+})();

@@ -48,3 +48,7 @@
 {{- if .IsHome }}
 {{- partial "schema.html" . -}}
 {{- end }}
+
+<!-- Analytics. Last in <head> on purpose: nothing analytics-related belongs
+     ahead of the stylesheet, and the tag itself is injected async. -->
+{{- partial "analytics.html" . -}}

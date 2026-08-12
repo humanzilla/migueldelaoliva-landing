@@ -1,5 +1,11 @@
 <footer>
   <div class="container">
     <p>&copy; {{ now.Year }} {{ site.Params.author }} • Psiquiatra • {{ site.Params.contact.city }}, {{ site.Params.contact.country }} • migueldelaoliva.com</p>
+    {{/* Sólo aparece si hay analítica configurada: el sitio no debería decir que
+         mide algo cuando no mide nada. La segunda frase es una promesa que la
+         lista blanca de assets/js/main.js efectivamente cumple. */}}
+    {{- with site.Config.Services.GoogleAnalytics.ID }}
+    <p class="footer-privacy">Este sitio mide visitas con Google Analytics para saber qué información resulta útil. No se registra ningún dato de salud ni el motivo de tu consulta.</p>
+    {{- end }}
   </div>
 </footer>

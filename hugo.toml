@@ -88,6 +88,21 @@ enableGitInfo          = false
     # que reemplacen este texto por defecto.
     defaultMessage = "Hola doctor, le escribo desde su página web porque me gustaría consultar con usted. ¿Podemos coordinar una cita?"
 
+# Google Analytics 4. El ID vive acá, y no en [params], porque es de donde lo lee
+# `site.Config.Services.GoogleAnalytics.ID` — una clave en [params] sería invisible
+# tanto para esa variable como para la configuración de privacidad de abajo.
+# layouts/partials/analytics.html no emite nada si el ID está vacío, así que un
+# build sin ID queda limpio.
+[services.googleAnalytics]
+  ID = "G-DPX00H2N9R"
+
+# `respectDoNotTrack = true` ya es el valor por defecto en Hugo 0.164; queda
+# explícito para que la intención sobreviva un cambio de ese valor por defecto.
+# Ojo: la plantilla interna de Hugo lo respeta a medias — ver el comentario en
+# layouts/partials/analytics.html, que es la razón por la que no la usamos.
+[privacy.googleAnalytics]
+  respectDoNotTrack = true
+
 [markup.goldmark.renderer]
   unsafe = true
 
