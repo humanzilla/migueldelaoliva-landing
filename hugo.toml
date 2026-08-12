@@ -58,10 +58,23 @@ enableGitInfo          = false
       closes = "18:00"
 
   [params.hero]
-    name  = "Dr. Miguel de la Oliva"
-    photo = "/images/profile-miguel-oliva.jpg"
-    intro = "Soy el Dr. Miguel de la Oliva, psiquiatra especializado en autismo y adicciones. Creo profundamente que cada persona merece ser escuchada, aceptada e incluida en nuestra sociedad."
-    cta   = "Hablemos"
+    # `h1` lleva la especialidad y la ciudad; `subheadline` lleva las áreas de
+    # consulta. Entre las dos dicen, en la primera pantalla, quién es y dónde
+    # atiende — que es lo que busca alguien que todavía no lo conoce.
+    h1          = "Psiquiatra en Santa Cruz de la Sierra"
+    subheadline = "Autismo, TDAH y adicciones"
+
+    # `name` también alimenta `alternateName` en el JSON-LD; no lo borres sin
+    # revisar layouts/partials/schema.html.
+    name        = "Dr. Miguel de la Oliva"
+    intro       = "Soy el Dr. Miguel de la Oliva. Creo profundamente que cada persona merece ser escuchada, aceptada e incluida en nuestra sociedad."
+
+    # El retrato es de estudio: bata blanca, fondo liso. El texto alternativo
+    # describe lo que se ve, no un consultorio que la foto no muestra.
+    photo       = "/images/profile-miguel-oliva.jpg"
+    photoAlt    = "El Dr. Miguel de la Oliva, con bata blanca, mirando de frente a la cámara."
+
+    cta         = "Hablemos"
 
 [markup.goldmark.renderer]
   unsafe = true

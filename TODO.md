@@ -20,12 +20,13 @@ block, insurance/`seguros` copy. These need answers from the doctor first.
 | W4 — Remove clinic affiliation | 1B | ✅ **Done** — 2026-08-12 |
 | W6 — Schema `@graph` | 1B | ✅ **Done** — 2026-08-12 |
 | W8 — Reduced motion / no JS-hidden content | 1C | ⬜ Not started — *reported done 2026-08-12, but no changes found in working tree; see item* |
-| W5 — Keyword-led H1 | 2 | ⬜ Not started |
+| W5 — Keyword-led H1 | 2 | ✅ **Done** — 2026-08-12 |
 | W2 — WhatsApp primary CTA | 2 | ⬜ Not started |
 | W3 + W1 — Dead box → message composer | 2 | ⬜ Not started |
 | W14 — Map click-to-load facade | 3 | ⬜ Not started |
 | W15 — GA4 + conversion tracking | 3 | ⬜ Not started |
 | W12b — Voice and tone sweep | 4 | ⬜ Not started |
+| W16 — Commit the finished-but-uncommitted items | — | ⬜ Not started |
 
 Legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 
@@ -576,7 +577,69 @@ claude "Read TODO.md and implement work item W8: fix the scroll reveal in assets
 
 ---
 
-## W5 — Keyword-led H1, portrait out of the heading
+## W5 — Keyword-led H1, portrait out of the heading ✅ DONE
+
+### Outcome — 2026-08-12
+
+The hero is now `img` → `h1` → `subheadline` → deck, as four siblings inside
+`.hero-content`. The portrait is out of the heading, so the `<h1>` accessible name is
+exactly `"Psiquiatra en Santa Cruz de la Sierra"` — the stutter is gone.
+
+```
+h1.headline     Psiquiatra en Santa Cruz de la Sierra   ← especialidad + ciudad
+p.subheadline   Autismo, TDAH y adicciones              ← áreas de consulta
+p.big-text      Soy el Dr. Miguel de la Oliva. Creo…    ← nombre + línea en primera persona
+```
+
+- **Files changed:** `hugo.toml` (`[params.hero]` restructured), `layouts/index.html`
+  (hero block), `assets/css/main.css` (`.hero .headline`, new `.hero .subheadline`,
+  `.hero-photo`, and two rules in the 768 px block).
+- **`$hero.name` was kept** even though the template no longer prints it directly:
+  `layouts/partials/schema.html:79` reads it as `alternateName`. Deleting the key would
+  have silently emptied that field. There is a comment in `hugo.toml` saying so.
+- **`.subheadline` is now used** — it was defined at `main.css:30` and dead, as the item
+  noted.
+
+**Verified** — `hugo --gc --minify` builds clean, 4 pages. Playwright headless
+(`--isolated`) against the built `public/` on `:1399`, per CLAUDE.md:
+
+| Check | Result |
+| --- | --- |
+| `<h1>` accessible name | `"Psiquiatra en Santa Cruz de la Sierra"` — single, no name repeat |
+| `h1.querySelector('img')` | `null` — portrait is a sibling, not a child |
+| Heading outline | one `h1`, then the existing `h2`/`h3`s — unchanged |
+| `alternateName` in rendered JSON-LD | `"Dr. Miguel de la Oliva"` — intact |
+| 375 px wrap | `h1` 2 lines, subheadline 1 line, CTA above the fold |
+| `prefers-reduced-motion: reduce` | `<html>` class empty, all five sections `opacity: 1` |
+
+**Deviations — three, all deliberate:**
+
+- **The alt text does not say "en su consultorio".** Both this item and CLAUDE.md's
+  micro-copy section suggest *"…en su consultorio en Santa Cruz de la Sierra"* as the
+  model. The actual file is a studio portrait — white coat, plain mottled backdrop, no
+  room visible. Writing a consultorio into it would have invented a fact on a page whose
+  proposition is trust, so the alt describes what is there:
+  *"El Dr. Miguel de la Oliva, con bata blanca, mirando de frente a la cámara."*
+  If a real consultorio photo replaces it, `photoAlt` should be rewritten to the model.
+- **`intro` lost one clause.** It opened *"Soy el Dr. Miguel de la Oliva, psiquiatra
+  especializado en autismo y adicciones."* — which, sitting directly under an H1 saying
+  psiquiatra + ciudad and a subheadline saying autismo/TDAH/adicciones, said the same
+  thing a third time. Now *"Soy el Dr. Miguel de la Oliva."* The belief sentence after it
+  is untouched. Meaning preserved, repetition removed.
+- **Mobile type scale moved.** `.headline` 2.5rem → 2.25rem and a new
+  `.subheadline` 1.5rem, both inside the existing `@media (max-width: 768px)` block —
+  which this item explicitly permits. At 2.5rem the longer H1 took three lines at 375 px;
+  2.25rem was the largest of the candidates measured in-browser that gets it to two lines
+  and the subheadline to one. Desktop sizes are untouched.
+
+**Judgment call:** the subheadline is a bare list, `"Autismo, TDAH y adicciones"`, rather
+than something warmer like *"Acompaño a personas autistas, con TDAH y en recuperación"*.
+This is the keyword line and it has to stay scannable at a glance and short enough for one
+line on a phone; the warmth lives in the deck immediately below it. W12b may revisit the
+wording, but keep the three terms and keep it short.
+
+**Not done, and out of scope:** the hero CTA is still `<a href="#contacto">Hablemos</a>`.
+W2 owns replacing it with the WhatsApp partial and adding the quieter `#contacto` link.
 
 ### Context
 
@@ -880,6 +943,59 @@ not smoothed over.
 
 ```bash
 claude "Read TODO.md and implement work item W12b: sweep all user-facing copy across content/, data/, layouts/ and hugo.toml for consistent voseo, voice and tone per CLAUDE.md. Follow the instructions in that item. This is a register pass, not a rewrite — do not change meaning or invent claims. When finished, mark W12b done in TODO.md per the Completion protocol."
+```
+
+---
+
+## W16 — Commit the finished-but-uncommitted items
+
+Raised while starting W5, per the completion protocol's "if the work surfaced a new
+problem, add it as a work item" rule. This is bookkeeping, not site work — but the wave
+plan's ability to revert one item cleanly depends on it.
+
+### Context
+
+Four items are marked ✅ in the status board but are **not in git history**. Checked with
+`git log --oneline` and `git status` on 2026-08-12:
+
+| Item | Board | Actually |
+| --- | --- | --- |
+| W4, W6, W9 | ✅ | committed — `b5b95d6`, `3dfd0b3`, `865c647` |
+| W12a | ✅ | `CLAUDE.md` is **untracked** |
+| W7 | ✅ | `layouts/robots.txt` modified, uncommitted |
+| W8 | ✅ | `main.js`, `main.css`, `head.html` modified, uncommitted |
+| W14 | ✅ (marked mid-session) | **built but uncommitted** — `.map-facade` in `index.html`, CSS and the JS IIFE |
+
+So W8's Outcome block is accurate except for the word "committed". W14's board row was
+still ⬜ when this was written and was flipped to ✅ by a concurrent session partway
+through W5 — so it, too, is now "marked done, living only in the working tree".
+
+This is the predictable residue of the concurrent sessions that W9's and W8's Outcome
+blocks describe: each staged only its own hunks and left the rest, and the last one out
+did not commit. Nothing is lost — every change is in the working tree.
+
+### Instructions
+
+- Commit the three finished items as separate units, in this order, so each stays
+  revertable: **W12a** (`CLAUDE.md`), **W7** (`robots.txt`), **W8** (`main.js`,
+  `main.css`, `head.html`).
+- `main.css` and `index.html` each carry hunks from more than one item, so this needs
+  per-hunk staging (`git add -p`, or `git update-index` with a hand-built blob — both W6
+  and W8 did the latter; see their Outcome blocks).
+- **W14 needs verifying before it is believed**, per this file's own rule. It is marked ✅
+  but has no commit; confirm its Outcome block exists and that the checks it claims were
+  actually run — in particular that no request reaches Google before a click. Note its
+  code was written *before* W3+W1 restructure the surrounding contact section, which
+  W14's own dependency note says should come first, so it may need redoing anyway.
+- Decide whether `.mcp.json` and `.vscode/` belong in the repo or in `.gitignore`. Both
+  are untracked. `.mcp.json` is referenced by CLAUDE.md as project-scoped config that
+  "every session gets", which only holds if it is committed.
+- Fix the status board to match reality as you go.
+
+### Start command
+
+```bash
+claude "Read TODO.md and implement work item W16: commit the finished-but-uncommitted items (W12a, W7, W8) as separate revertable commits, and decide what to do with the half-landed W14. Follow the instructions in that item — per-hunk staging is required because main.css and index.html carry hunks from several items. Verify each with git show --stat before moving on. When finished, mark W16 done in TODO.md per the Completion protocol."
 ```
 
 ---

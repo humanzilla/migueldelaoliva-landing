@@ -104,6 +104,11 @@ nav {
 
 .hero .headline {
   color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.hero .subheadline {
+  color: #4b5563;
   margin-bottom: 2rem;
 }
 
@@ -112,10 +117,12 @@ nav {
   max-width: 600px;
 }
 
+/* El retrato ya no vive dentro del <h1>, así que es un bloque por sí mismo:
+   `margin-right` y `vertical-align` sólo servían cuando iba en línea junto al
+   nombre. */
 .hero-photo {
+  display: block;
   border-radius: 50%;
-  margin-right: 16px;
-  vertical-align: middle;
   margin-bottom: 2rem;
 }
 
@@ -443,8 +450,14 @@ footer p {
     padding: 0 20px;
   }
 
+  /* El H1 lleva especialidad y ciudad, así que es más largo que el nombre que
+     había antes: a 2.5rem ocupaba tres líneas en 375 px. */
   .headline {
-    font-size: 2.5rem;
+    font-size: 2.25rem;
+  }
+
+  .subheadline {
+    font-size: 1.5rem;
   }
 
   .section-title {
