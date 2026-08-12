@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-labelledby="t">
+  <title id="t">Monograma MO — Dr. Miguel de la Oliva</title>
+  <rect width="64" height="64" rx="14" fill="#1f2937"/>
+  <g fill="none" stroke="#ffffff" stroke-width="5.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M11.75 41.25V22.75L18 35.5l6.25-12.75v18.5"/>
+    <circle cx="43" cy="32" r="9.25"/>
+  </g>
+</svg>

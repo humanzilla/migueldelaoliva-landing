@@ -16,7 +16,7 @@ block, insurance/`seguros` copy. These need answers from the doctor first.
 | --- | --- | --- |
 | W12a — Voice guide → CLAUDE.md | 0 | ✅ **Done** — 2026-08-12 |
 | W7 — robots.txt AI crawler rules | 1A | ✅ **Done** — 2026-08-12 |
-| W9 — Favicon | 1A | ⬜ Not started |
+| W9 — Favicon | 1A | ✅ **Done** — 2026-08-12 |
 | W4 — Remove clinic affiliation | 1B | ✅ **Done** — 2026-08-12 |
 | W6 — Schema `@graph` | 1B | ✅ **Done** — 2026-08-12 |
 | W8 — Reduced motion / no JS-hidden content | 1C | ⬜ Not started — *reported done 2026-08-12, but no changes found in working tree; see item* |
@@ -220,7 +220,62 @@ claude "Read TODO.md and implement work item W7: rewrite layouts/robots.txt with
 
 ---
 
-## W9 — Replace the portrait-JPEG favicon
+## W9 — Replace the portrait-JPEG favicon ✅ DONE
+
+### Outcome — 2026-08-12
+
+An `MO` monogram in white on a `#1f2937` rounded square — the site's own heading/footer
+dark, which is also `params.themeColor`. Drawn as stroked geometry (a polyline and a
+circle), not as `<text>`, so it renders identically everywhere instead of depending on
+whatever font the rasteriser happens to find.
+
+- **Files changed:** `static/favicon.svg` (new, 425 B), `static/apple-touch-icon.png`
+  (new, 180×180, 2.6 KB), `static/favicon.ico` (new, 16+32 px, 5.4 KB),
+  `layouts/partials/head.html` (the two favicon lines → three).
+- **Verified:** `hugo --gc --minify` builds clean — 4 pages, static files went 1 → 4. All
+  three links render in `public/index.html` and all three files land in `public/`.
+  `og:image` still resolves to the portrait, as instructed; after this change the portrait
+  appears only there and as the hero `<img src>`, in no icon slot.
+- **Legibility was checked, not assumed.** Rendered at 16 px and inspected zoomed. The
+  first draft put the M's vertex at the vertical midpoint and it read as an `H`; the
+  vertex now descends to ~69% of cap height and the M is unambiguous. If you edit the
+  path, re-check at 16 px — that is the size the decision rests on.
+- **`favicon.ico` was produced, so it is referenced** — the item allowed skipping it.
+  16+32 px only; a 48 px layer was dropped because it tripled the file to 15 KB for a
+  fallback modern browsers never fetch.
+
+**Regenerating the raster files** — `favicon.svg` is the single source. From the repo root:
+
+```bash
+rsvg-convert -w 180 -h 180 static/favicon.svg -o /tmp/at.png
+magick /tmp/at.png -background '#1f2937' -alpha remove -alpha off static/apple-touch-icon.png
+for n in 16 32; do rsvg-convert -w $n -h $n static/favicon.svg -o /tmp/f$n.png; done
+magick /tmp/f16.png /tmp/f32.png static/favicon.ico
+```
+
+The `-alpha remove` on the apple-touch-icon is deliberate: iOS composites transparency
+onto black and applies its own corner mask, so that file must be a full-bleed opaque
+square. Flattening onto the same `#1f2937` fills the SVG's rounded corners exactly.
+`magick identify -format '%[opaque]'` returns `True` for it — keep it that way.
+
+**Deviations:** none against the instructions. One process note worth recording, below.
+
+### Note — this ran concurrently with another session
+
+Another session was writing this working tree at the same time: it landed W8's inline
+reveal script in `layouts/partials/head.html` (uncommitted, as the W8 item's own warning
+predicted) and W14's map facade in `layouts/index.html`, and marked W8 ✅ in the status
+board — all while W9 was in progress.
+
+Because W9 and W8 both edit `head.html`, this commit stages **only the favicon hunk**.
+W8's inline script is untouched and still uncommitted in the working tree; W14's
+`index.html` changes likewise. Neither was committed here and neither was reverted.
+Whoever picks those up still owns them.
+
+The wave plan calls this out — Lane A (W9) and Lane C (W8) were meant to be parallel-safe
+because W9 "adds no CSS in practice". That was right about `main.css` and wrong about
+`head.html`, which the contention map lists for **W9 and W15** but not W8. W8 needed it
+for the `.js-reveal` opt-in. Worth fixing in the map if anyone re-plans from it.
 
 ### Context
 
@@ -847,7 +902,7 @@ cost exceeds the time saved.
 | `assets/css/main.css` | W9, W8, W5, W2, W3+W1, W14 |
 | `assets/js/main.js` | W8, W14, W15 |
 | `layouts/partials/schema.html` | W4, W6 |
-| `layouts/partials/head.html` | W9, W15 |
+| `layouts/partials/head.html` | W9, W15, **W8** (the `.js-reveal` opt-in script — missed in the original map, which is why Lane A and Lane C collided) |
 | `hugo.toml` | W4, W5, W6, W15, W12b |
 | `layouts/robots.txt` | W7 only |
 

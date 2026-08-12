@@ -35,9 +35,11 @@
   {{- printf `<link rel="%s" type="%s" href="%s" title="%s">` .Rel .MediaType.Type .Permalink site.Title | safeHTML }}
 {{- end }}
 
-<!-- Favicons -->
-<link rel="icon" type="image/jpeg" href="/images/profile-miguel-oliva.jpg">
-<link rel="apple-touch-icon" href="/images/profile-miguel-oliva.jpg">
+<!-- Favicons. The portrait stays on og:image, where a photo is right; an icon slot
+     is not the place for it. -->
+<link rel="icon" href="/favicon.ico" sizes="32x32">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
 
 <!-- Styles -->
 {{- $css := resources.Get "css/main.css" | minify | fingerprint -}}
