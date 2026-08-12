@@ -84,8 +84,10 @@ enableGitInfo          = false
     # El mensaje llega escrito para que nadie tenga que redactar en frío la
     # primera frase sobre su salud mental. Lo escribe el visitante, no el
     # doctor: va en primera persona y lo trata de usted. Es una apertura, no una
-    # historia clínica — no da por hecho ningún diagnóstico. W1 añadirá motivos
-    # que reemplacen este texto por defecto.
+    # historia clínica — no da por hecho ningún diagnóstico. Es el texto de los
+    # CTA generales (héroe, franja del medio, barra fija y contacto); el
+    # selector de motivos de la sección de contacto lo reemplaza por el mensaje
+    # de cada opción, en data/motivos.yaml.
     defaultMessage = "Hola doctor, le escribo desde su página web porque me gustaría consultar con usted. ¿Podemos coordinar una cita?"
 
 # Google Analytics 4. El ID vive acá, y no en [params], porque es de donde lo lee

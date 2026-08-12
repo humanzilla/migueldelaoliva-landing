@@ -489,17 +489,54 @@ nav {
   transform: translateY(-1px);
 }
 
-.contact-form {
+/* Motivo de consulta: delineado, no verde. Ocho en verde le quitarían el rango
+   a los CTA principales. Ocupa el ancho de la tarjeta y va alineado a la
+   izquierda porque son etiquetas que se leen, no botones que se comparan. */
+.btn-contact--motivo {
+  width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+  background: #ffffff;
+  color: #1f2937;
+  border: 1.5px solid #e5e7eb;
+  /* Los demás .btn-contact son de una línea; estos pueden ser de dos. */
+  line-height: 1.3;
+}
+
+.btn-contact--motivo svg {
+  fill: #25d366;
+}
+
+.btn-contact--motivo:hover {
+  border-color: #1f2937;
+}
+
+/* Selector de motivos. Hereda el fondo, el relleno y el radio de la tarjeta
+   «Agendamiento en línea» que ocupaba esta celda. */
+.contact-composer {
   background: #f9fafb;
   padding: 2.5rem;
   border-radius: 8px;
 }
 
-.contact-form h3 {
+.contact-composer h3 {
   font-size: 1.5rem;
   font-weight: 700;
-  margin-bottom: 1.5rem;
+  margin-bottom: 0.75rem;
   color: #1f2937;
+}
+
+.contact-composer__note {
+  color: #6b7280;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.motivos-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 /* Footer */
@@ -604,6 +641,12 @@ footer p {
   .contact-grid {
     grid-template-columns: 1fr;
     gap: 2rem;
+  }
+
+  /* A 375 px, 2.5rem de relleno a cada lado dejan menos de la mitad del ancho
+     para etiquetas como «Autismo en mi hija o hijo». */
+  .contact-composer {
+    padding: 1.5rem;
   }
 
   .nav-links {

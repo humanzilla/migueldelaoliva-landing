@@ -1,0 +1,72 @@
+# Motivos de consulta — el mensaje con el que WhatsApp se abre ya escrito.
+#
+# Los escribe el VISITANTE, no el doctor. Van en primera persona y tratan de
+# usted, que es como un cruceño le escribe a un psiquiatra que todavía no
+# conoce. (El sitio trata de vos a quien lee; acá quien lee es el que escribe.)
+#
+# Cada mensaje es una APERTURA, no una historia clínica: dice lo justo para
+# pedir una cita y ninguno da por hecho un diagnóstico. Por eso «un posible
+# diagnóstico de autismo» y no «tengo autismo», y por eso «un consumo que me
+# preocupa» y no una etiqueta sobre la persona.
+#
+# `id` es interno y NO se envía a analítica. Los enlaces salen con
+# data-cta="motivo" a secas: el motivo de una consulta psiquiátrica unido al
+# identificador de un dispositivo es un dato de salud. Ver W15 en TODO.md y la
+# prohibición 6 de CLAUDE.md.
+#
+# `label` es lo que se ve y se lee en voz alta. Corto, sin jerga, y sin decidir
+# por nadie lo que le pasa.
+
+- id: autismo-adulto
+  label: Autismo en mí
+  message: >-
+    Hola doctor, le escribo desde su página web porque me gustaría consultar
+    sobre un posible diagnóstico de autismo en mí. ¿Podemos coordinar una cita?
+
+- id: autismo-hijo
+  label: Autismo en mi hija o hijo
+  message: >-
+    Hola doctor, le escribo desde su página web porque me gustaría consultar
+    sobre un posible diagnóstico de autismo en mi hija o hijo. ¿Podemos
+    coordinar una cita?
+
+- id: atencion
+  label: Atención, concentración y TDAH
+  message: >-
+    Hola doctor, le escribo desde su página web porque me gustaría consultar
+    sobre dificultades de atención y concentración. ¿Podemos coordinar una cita?
+
+- id: consumo
+  label: Consumo y adicciones
+  message: >-
+    Hola doctor, le escribo desde su página web porque hay un consumo que me
+    preocupa y me gustaría consultar con usted. ¿Podemos coordinar una cita?
+
+- id: ansiedad
+  label: Ansiedad
+  message: >-
+    Hola doctor, le escribo desde su página web porque hace un tiempo vengo
+    sintiendo mucha ansiedad y me gustaría consultar con usted. ¿Podemos
+    coordinar una cita?
+
+- id: animo
+  label: Ánimo bajo
+  message: >-
+    Hola doctor, le escribo desde su página web porque me vengo sintiendo con el
+    ánimo bajo y me gustaría consultar con usted. ¿Podemos coordinar una cita?
+
+- id: familia
+  label: Orientación para la familia
+  message: >-
+    Hola doctor, le escribo desde su página web porque me gustaría consultar
+    sobre cómo acompañar a alguien de mi familia. ¿Podemos coordinar una cita?
+
+# Para quien llega hasta acá y no se reconoce en ninguna de las anteriores. La
+# franja del medio de la página ya dice «no hace falta que tengas las palabras
+# exactas»; esta opción es esa misma frase convertida en un enlace.
+- id: no-se-como-decirlo
+  label: Todavía no sé cómo explicarlo
+  message: >-
+    Hola doctor, le escribo desde su página web porque me gustaría consultar con
+    usted. Todavía no sé bien cómo explicar lo que me pasa. ¿Podemos coordinar
+    una cita?

@@ -161,9 +161,28 @@
         </div>
       </div>
 
-      <div class="contact-form">
-        <h3>Agendamiento en línea</h3>
-        <strong>Próximamente</strong>
+      {{/* Acá vivía «Agendamiento en línea — Próximamente»: media grilla de la
+           zona de más intención de la página, dedicada a decirle a quien llegó
+           hasta el final que lo que busca todavía no existe.
+
+           Lo que la reemplaza ataca el punto donde de verdad se pierde la
+           gente: nadie deja de escribir por el precio, deja de escribir porque
+           no sabe cómo empezar la primera frase sobre su salud mental. Cada
+           opción abre WhatsApp con esa frase ya escrita.
+
+           Son enlaces de verdad, no un compositor en JavaScript: funcionan sin
+           JS, se recorren con el teclado y el mensaje se arma en el servidor.
+           Todos salen con data-cta="motivo" y ninguno dice cuál se eligió. */}}
+      <div class="contact-composer">
+        <h3>¿Sobre qué querés consultar?</h3>
+        <p class="contact-composer__note">Elegí lo que más se parezca a tu situación. WhatsApp se abre con el mensaje ya escrito y podés cambiarlo antes de enviarlo.</p>
+        <ul class="motivos-list">
+          {{- range hugo.Data.motivos }}
+          <li>
+            {{ partial "whatsapp-cta.html" (dict "placement" "motivo" "variant" "motivo" "label" .label "message" .message) }}
+          </li>
+          {{- end }}
+        </ul>
       </div>
     </div>
   </div>

@@ -22,7 +22,7 @@ block, insurance/`seguros` copy. These need answers from the doctor first.
 | W8 — Reduced motion / no JS-hidden content | 1C | ⬜ Not started — *reported done 2026-08-12, but no changes found in working tree; see item* |
 | W5 — Keyword-led H1 | 2 | ✅ **Done** — 2026-08-12 |
 | W2 — WhatsApp primary CTA | 2 | ✅ **Done** — 2026-08-12 |
-| W3 + W1 — Dead box → message composer | 2 | ⬜ Not started |
+| W3 + W1 — Dead box → message composer | 2 | ✅ **Done** — 2026-08-12 |
 | W14 — Map click-to-load facade | 3 | ✅ **Done** — 2026-08-12 |
 | W15 — GA4 + conversion tracking | 3 | ✅ **Done** — 2026-08-12 |
 | W12b — Voice and tone sweep | 4 | ⬜ Not started |
@@ -821,10 +821,91 @@ claude "Read TODO.md and implement work item W2: make WhatsApp the primary repea
 
 ---
 
-## W3 + W1 — Replace the dead booking box with a WhatsApp message composer
+## W3 + W1 — Replace the dead booking box with a WhatsApp message composer ✅ DONE
 
 > **Run these two together in one session.** W3 empties the slot, W1 fills it. Splitting
 > them across sessions leaves the page in a worse state than it started.
+
+### Outcome — 2026-08-12
+
+"Agendamiento en línea — Próximamente" is gone. The cell it occupied now holds
+**¿Sobre qué querés consultar?** — eight plain `<a href>`s, one per motive, each opening
+WhatsApp with the first message already written. No JavaScript is involved in producing
+them: the message is built at render time by the W2 partial.
+
+- **Files changed:** `data/motivos.yaml` (new, 8 motives), `layouts/index.html`
+  (`.contact-form` block → `.contact-composer`), `layouts/partials/whatsapp-cta.html`
+  (new `motivo` variant + docs), `assets/css/main.css` (`.contact-form` rules → 
+  `.contact-composer`, `.contact-composer__note`, `.motivos-list`, `.btn-contact--motivo`;
+  one rule in the existing 768 px block), `hugo.toml` (comment only — the
+  `defaultMessage` note said "W1 añadirá motivos", now past tense).
+- **`.contact-grid` is untouched**, as instructed: still `1fr 1fr`, still collapsing to one
+  column at 768 px. The new component simply takes the vacated cell.
+- **The eight motives** are: autismo en mí · autismo en mi hija o hijo · atención,
+  concentración y TDAH · consumo y adicciones · ansiedad · ánimo bajo · orientación para la
+  familia · **todavía no sé cómo explicarlo**. The last one is beyond the item's list and is
+  the point of the whole component — the page already says "no hace falta que tengas las
+  palabras exactas" in the mid-page band, and this is that sentence turned into a link.
+
+**Verified** — `hugo --gc --minify` builds clean (4 pages, no warnings). Playwright MCP
+headless `--isolated` per CLAUDE.md, against a copy of the built `public/` served on port
+1616 (1399, 1414 and 1515 belong to other sessions).
+
+| # | Check | Result |
+| --- | --- | --- |
+| 1 | `data-cta` values in the built page | `hero`, `mid`, `contact`, `sticky` ×1 and `motivo` ×8 — **no motive is encoded in any of them** |
+| 2 | `?text=` round-trip | all eight decode back to the exact YAML source string — `¿`, `í`, `á`, `ñ` intact, no `%25` |
+| 3 | Accessible names | e.g. *"Autismo en mi hija o hijo. Se abre una conversación nueva con el Dr. Miguel de la Oliva."* — read from the a11y tree |
+| 4 | WCAG 2.5.3 label-in-name | the visible label is a prefix of the accessible name on all eight |
+| 5 | `target` / `rel` | `_blank` / `noopener noreferrer` on all eight |
+| 6 | **Analytics leaks nothing** | `gtag` stubbed, two *different* motives clicked → two **identical** `whatsapp_click` hits, `{placement: 'motivo'}`. Indistinguishable on the wire |
+| 7 | Keyboard | all eight reachable by Tab in document order, focus ring visible (`auto 3px #1f2937`) |
+| 8 | **Scripting disabled** | 8 links present with correct `href`s, composer visible, all 6 sections `opacity: 1`, **0 third-party requests** |
+| 9 | `prefers-reduced-motion: reduce` | `js-reveal` never armed, sections opaque, button transitions zeroed, all 8 links intact |
+| 10 | 375 px | no horizontal overflow (`scrollWidth` 375), one label wraps to two lines and is handled, card padding drops to 1.5rem |
+| 11 | Console | 0 errors, 0 warnings |
+
+**Deviations — four, all deliberate:**
+
+- **The optional textarea was not built.** The item marks it optional and conditions it on
+  staying JS-free-degradable. It cannot be: a `<textarea>` whose contents must reach the
+  `?text=` parameter needs JS to rewrite the `href` on every keystroke, and without JS it
+  is an edit box that silently discards what you typed — worse than no box. What replaces
+  it is one sentence of copy, *"WhatsApp se abre con el mensaje ya escrito y podés
+  cambiarlo antes de enviarlo"*, which tells the visitor the same thing the textarea would
+  have and is true in every browser. If the composer is ever wanted for real, it belongs in
+  a separate item with its own no-JS story.
+- **The motive buttons are outlined, not WhatsApp green.** `.btn-contact--motivo` is white
+  with an `#e5e7eb` border and a green WhatsApp glyph. Eight green pills in a `#f9fafb`
+  card would have out-shouted the hero, mid-page and sticky CTAs, which are the ones W2
+  made primary. Every colour used is already in `main.css`.
+- **`.contact-form`'s CSS was deleted, not renamed.** Its two rules had exactly one caller,
+  the block this item removes, and "form" would have been a lie about a list of links.
+  `.contact-composer` carries the same `#f9fafb` / `2.5rem` / `8px` card so the cell looks
+  unchanged.
+- **`hugo.toml` was edited** — a comment only, no key. Noting it because `hugo.toml` is a
+  contended file and a reviewer scanning the file list deserves to know it is prose.
+
+**Worth knowing:**
+
+- **`placement` is `motivo`, never `motivo-<id>`.** W15's `PLACEMENTS` allowlist in
+  `main.js` would collapse anything else to `other`, but the point is that the markup never
+  even attempts it — the partial is passed the literal string. `data/motivos.yaml` carries
+  a comment saying so, and the partial's doc block now says it too. Anyone who "improves"
+  this by passing the id is shipping a health fact to Google.
+- **Messages address the doctor as `usted`.** Same reasoning W2 recorded: the site speaks to
+  the reader as `vos`, but these sentences are written *by* the reader *to* a psychiatrist
+  they have not met, and `usted` is what a cruceño writes there. The site's own voice in
+  this block — the heading and the note — is voseo: *"¿Sobre qué querés consultar?"*,
+  *"Elegí…"*, *"podés cambiarlo"*.
+- **No message asserts a diagnosis.** "Un posible diagnóstico de autismo en mí", not "tengo
+  autismo"; "un consumo que me preocupa", not a label about the person. W12b should keep
+  that property if it touches these strings.
+- **W14 ran before this item**, against its own dependency note. Its concern was that this
+  item would restructure the surrounding contact section — it did not: this touched only
+  the `.contact-form` cell, and `.contact-info`, the map facade and its CSS were not edited.
+  Check 8 above re-confirms 0 third-party requests on a no-JS load, so W14 is not regressed.
+  **W14 does not need redoing** — which also answers the open question in W16's instructions.
 
 ### W3 context — the dead box
 
