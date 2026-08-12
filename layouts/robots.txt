@@ -1,4 +1,63 @@
+# robots.txt — migueldelaoliva.com
+#
+# The catch-all below already permits every crawler. The named blocks that follow
+# are intentional and redundant on purpose: this site *wants* to be indexed and
+# cited by AI assistants and search engines, and stating it per-agent removes any
+# ambiguity for whoever touches hosting or CDN rules next. Do not remove them
+# assuming they are dead weight.
+
 User-agent: *
+Allow: /
+
+# --- OpenAI ---
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+# --- Anthropic ---
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+# --- Perplexity ---
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+# --- Google (Gemini / Vertex AI opt-in token) ---
+User-agent: Google-Extended
+Allow: /
+
+# --- Apple (Apple Intelligence opt-in token) ---
+User-agent: Applebot-Extended
+Allow: /
+
+# --- Microsoft / Bing (also feeds Copilot) ---
+User-agent: Bingbot
+Allow: /
+
+# --- Amazon ---
+User-agent: Amazonbot
+Allow: /
+
+# --- Meta ---
+User-agent: meta-externalagent
+Allow: /
+
+# --- DuckDuckGo ---
+User-agent: DuckDuckBot
 Allow: /
 
 Sitemap: {{ "sitemap.xml" | absURL }}

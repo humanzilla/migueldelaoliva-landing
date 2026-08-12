@@ -1,34 +1,35 @@
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-  anchor.addEventListener('click', function (e) {
-    e.preventDefault();
-    const target = document.querySelector(this.getAttribute('href'));
-    if (target) {
-      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-  });
-});
+// Scroll reveal — progressive enhancement only.
+//
+// The hidden state lives in main.css and applies only under the `js-reveal`
+// class, which the inline script in head.html puts on <html> when JavaScript is
+// running, IntersectionObserver exists and the visitor has not asked for reduced
+// motion. If that class is absent — no JS, reduced motion, or the head failsafe
+// already fired because this file was slow to arrive — every section is already
+// visible and there is nothing to do here.
+//
+// Smooth scrolling is CSS (`scroll-behavior`), not JS, so anchor links keep the
+// URL hash and the back button working.
 
-const observer = new IntersectionObserver(entries => {
-  entries.forEach(entry => {
-    if (entry.isIntersecting) {
-      entry.target.style.opacity = '1';
-      entry.target.style.transform = 'translateY(0)';
-    }
-  });
-}, { threshold: 0.1, rootMargin: '0px 0px -100px 0px' });
+(() => {
+  const root = document.documentElement;
+  if (!root.classList.contains('js-reveal')) return;
 
-document.querySelectorAll('section').forEach(section => {
-  section.style.opacity = '0';
-  section.style.transform = 'translateY(20px)';
-  section.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-  observer.observe(section);
-});
+  // Tells the head failsafe that the reveal is under control.
+  root.classList.add('reveal-ready');
 
-const hero = document.querySelector('.hero');
-if (hero) {
-  hero.style.opacity = '1';
-  hero.style.transform = 'translateY(0)';
-}
+  const sections = document.querySelectorAll('main > section:not(.hero)');
+  if (!sections.length) return;
+
+  const observer = new IntersectionObserver((entries, obs) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      entry.target.classList.add('is-revealed');
+      obs.unobserve(entry.target);
+    });
+  }, { threshold: 0.1, rootMargin: '0px 0px -100px 0px' });
+
+  sections.forEach(section => observer.observe(section));
+})();
 
 // Map facade — click to load.
 //

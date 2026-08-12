@@ -558,6 +558,27 @@ footer p {
   fill: currentColor;
 }
 
+/* Motion */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Scroll reveal. The hidden state is gated on .js-reveal, which head.html adds
+     only when the reveal can actually run, so the default — no JS, or reduced
+     motion — is fully visible content. */
+  html.js-reveal main > section:not(.hero) {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+
+  html.js-reveal main > section.is-revealed {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .container {
@@ -636,5 +657,17 @@ footer p {
      sitio que le quita. Va con el alto de la barra: si cambia uno, cambia el otro. */
   footer {
     padding-bottom: 6rem;
+  }
+}
+
+/* Reduced motion — no transitions, no animation, no smooth scrolling anywhere. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
