@@ -74,7 +74,19 @@ enableGitInfo          = false
     photo       = "/images/profile-miguel-oliva.jpg"
     photoAlt    = "El Dr. Miguel de la Oliva, con bata blanca, mirando de frente a la cámara."
 
-    cta         = "Hablemos"
+  # Todo lo que necesita layouts/partials/whatsapp-cta.html, que es el único
+  # lugar donde se arma el enlace. (`cta = "Hablemos"` vivía en [params.hero];
+  # se movió acá porque la misma etiqueta la usan el héroe, la franja del medio
+  # y la barra fija.)
+  [params.whatsapp]
+    label = "Escribime por WhatsApp"
+
+    # El mensaje llega escrito para que nadie tenga que redactar en frío la
+    # primera frase sobre su salud mental. Lo escribe el visitante, no el
+    # doctor: va en primera persona y lo trata de usted. Es una apertura, no una
+    # historia clínica — no da por hecho ningún diagnóstico. W1 añadirá motivos
+    # que reemplacen este texto por defecto.
+    defaultMessage = "Hola doctor, le escribo desde su página web porque me gustaría consultar con usted. ¿Podemos coordinar una cita?"
 
 [markup.goldmark.renderer]
   unsafe = true

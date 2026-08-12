@@ -143,6 +143,42 @@ nav {
   transform: translateY(-1px);
 }
 
+/* El botón principal ahora lleva el icono de WhatsApp. Conserva el oscuro de
+   .cta-button: el verde de la marca ya identifica al botón del contacto y a la
+   barra fija, y en el héroe competiría con el retrato. */
+.cta-button--whatsapp {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.cta-button svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+  flex-shrink: 0;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.hero-actions__secondary {
+  color: #4b5563;
+  font-weight: 500;
+  font-size: 1rem;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.2s ease;
+}
+
+.hero-actions__secondary:hover {
+  color: #1f2937;
+}
+
 /* Story Section */
 .story {
   padding: 5rem 0;
@@ -260,6 +296,26 @@ nav {
 
 .mission-text strong {
   color: white;
+}
+
+/* Franja de contacto entre «Mi propósito es simple» y «Trabajemos juntos». */
+.cta-band {
+  padding: 4rem 0;
+  text-align: center;
+}
+
+.cta-band__text {
+  max-width: 34rem;
+  margin: 0 auto 2rem;
+  font-size: 1.25rem;
+  line-height: 1.6;
+  color: #4b5563;
+}
+
+/* Barra fija de WhatsApp: oculta salvo en móvil, donde el bloque de 768 px la
+   enciende. */
+.sticky-cta {
+  display: none;
 }
 
 /* Contact Section */
@@ -537,5 +593,40 @@ footer p {
 
   .mission {
     padding: 3rem 0;
+  }
+
+  .cta-band {
+    padding: 3rem 0;
+  }
+
+  .cta-band__text {
+    font-size: 1.125rem;
+  }
+
+  /* Barra fija de WhatsApp. `env(safe-area-inset-bottom)` la despega del
+     indicador de inicio del iPhone; sin eso el botón queda debajo de él. */
+  .sticky-cta {
+    display: block;
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+    padding: 0.75rem 20px calc(0.75rem + env(safe-area-inset-bottom, 0px));
+    background: #ffffff;
+    border-top: 1px solid #e5e7eb;
+  }
+
+  .sticky-cta__link {
+    display: flex;
+    justify-content: center;
+    padding: 0.85rem 1.1rem;
+    font-size: 1rem;
+  }
+
+  /* La barra fija se monta sobre el pie de página; este relleno le devuelve el
+     sitio que le quita. Va con el alto de la barra: si cambia uno, cambia el otro. */
+  footer {
+    padding-bottom: 6rem;
   }
 }

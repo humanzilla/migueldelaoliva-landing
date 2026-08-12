@@ -21,7 +21,7 @@ block, insurance/`seguros` copy. These need answers from the doctor first.
 | W6 — Schema `@graph` | 1B | ✅ **Done** — 2026-08-12 |
 | W8 — Reduced motion / no JS-hidden content | 1C | ⬜ Not started — *reported done 2026-08-12, but no changes found in working tree; see item* |
 | W5 — Keyword-led H1 | 2 | ✅ **Done** — 2026-08-12 |
-| W2 — WhatsApp primary CTA | 2 | ⬜ Not started |
+| W2 — WhatsApp primary CTA | 2 | ✅ **Done** — 2026-08-12 |
 | W3 + W1 — Dead box → message composer | 2 | ⬜ Not started |
 | W14 — Map click-to-load facade | 3 | ✅ **Done** — 2026-08-12 |
 | W15 — GA4 + conversion tracking | 3 | ⬜ Not started |
@@ -691,7 +691,91 @@ claude "Read TODO.md and implement work item W5: restructure the hero H1 in layo
 
 ---
 
-## W2 — Make WhatsApp the primary, repeated call to action
+## W2 — Make WhatsApp the primary, repeated call to action ✅ DONE
+
+### Outcome — 2026-08-12
+
+`layouts/partials/whatsapp-cta.html` is now the only place in the site where a WhatsApp URL
+is built, and it is called four times:
+
+| `data-cta` | Where | Variant | Visible label |
+| --- | --- | --- | --- |
+| `hero` | primary hero button, replacing `<a href="#contacto">Hablemos</a>` | `primary` | Escribime por WhatsApp |
+| `mid` | new `.cta-band` between `.mission` and `.contact` | `primary` | Escribime por WhatsApp |
+| `contact` | the existing pill in `.contact-actions` | `inline` | +591 6000 5594 (WhatsApp) |
+| `sticky` | fixed bottom bar, ≤768 px only | `sticky` | Escribime por WhatsApp |
+
+The hero keeps the old path as a quieter sibling: `<a href="#contacto">Ver dirección y
+horarios</a>`, styled as an underlined link, not a button.
+
+- **Files changed:** `layouts/partials/whatsapp-cta.html` (new), `layouts/index.html`
+  (hero actions, new `.cta-band` section, contact button → partial, sticky bar),
+  `assets/css/main.css` (`.cta-button--whatsapp`, `.cta-button svg`, `.hero-actions`,
+  `.hero-actions__secondary`, `.cta-band`, `.sticky-cta`; plus five rules in the existing
+  768 px block), `hugo.toml` (new `[params.whatsapp]`; `cta` removed from `[params.hero]`).
+
+**Verified** — `hugo --gc --minify` builds clean. Playwright headless `--isolated` against
+the built `public/` on `:1399`, per CLAUDE.md:
+
+| # | Check | Result |
+| --- | --- | --- |
+| 1 | All four `data-cta` values present | `hero`, `mid`, `sticky`, `contact` — one each |
+| 2 | `rel` / `target` on every one | `noopener noreferrer` / `_blank` on all four |
+| 3 | Accessible names | e.g. *"Escribime por WhatsApp. Se abre una conversación nueva con el Dr. Miguel de la Oliva."* — read from the a11y tree, not the attribute |
+| 4 | WCAG 2.5.3 label-in-name | the visible label is a prefix of the accessible name on all four, including the phone-number one |
+| 5 | `?text=` round-trip | decodes back to the exact source string — `página`, `gustaría`, `¿` all intact, no `%25` |
+| 6 | Sticky bar at 1280 px | `display: none` |
+| 7 | Sticky bar at 375 px | visible, 72 px tall, hit-tests to the `sticky` link |
+| 8 | Footer not covered | footer text ends 24 px above the bar; `footer` gets `padding-bottom: 6rem` at ≤768 px |
+| 9 | **Scripting disabled** | all four CTAs present and visible with correct `href`s, sticky bar shown, every section `opacity: 1`, **0 third-party requests** |
+| 10 | `prefers-reduced-motion: reduce` | `js-reveal` never armed, all sections opaque, button transitions zeroed, sticky bar still works |
+| 11 | W14 not regressed | 5 requests on load, all same-origin, **0 to Google** |
+
+**Deviations — five, all deliberate:**
+
+- **The contact-block button was converted here, not in W3+W1.** That bullet still sits in
+  W3+W1's instructions; it is done. W2 required `data-cta="contact"` on that button
+  regardless, which meant editing the same line, and leaving it with a hardcoded URL would
+  have contradicted this item's own "constructed in exactly one place". W3+W1 inherits one
+  less thing.
+- **`[params.hero].cta` deleted; the label moved to `[params.whatsapp].label`.** Three of
+  the four placements share it now, so it is no longer a hero property. `grep` confirmed
+  `hero.cta` had exactly one reader (`index.html:26`), unlike `hero.name`, which W5 kept
+  because the schema reads it.
+- **The pre-filled `?text=` message ships now.** The item asks for "a single sensible
+  default message for now, so W1 has something to extend", and that is what
+  `params.whatsapp.defaultMessage` is. W1 replaces it per motive by passing `message` to
+  the partial. **Note the person:** the message is written *by the visitor to the doctor*,
+  so it says *"le escribo… consultar con usted"*. That is not a voseo violation — the site
+  addresses the reader as `vos`; here the reader is addressing the doctor, and `usted` is
+  what a cruceño writes to a psychiatrist they have not met.
+- **Encoding: `urlquery`, then `+` → `%20`, then `safeURL` on the whole URL.** Hugo's
+  `urlquery` encodes a space as `+`, which only means "space" to a reader applying
+  form-encoding; WhatsApp's own examples use `%20`. The replace is safe because a literal
+  `+` in the message has already become `%2B`. `safeURL` is then **required**, not
+  cosmetic: without it Go's contextual escaper runs over the query a second time and turns
+  every `%` into `%25`. Verified by decoding the rendered URL, check 5 above.
+- **Three new CSS components.** `.hero-actions` (button + quiet link), `.cta-band` (the
+  mid-page slot) and `.sticky-cta`. Every colour is already in the file — `#1f2937`,
+  `#4b5563`, `#e5e7eb`, `#ffffff`, and the WhatsApp green via the existing
+  `.btn-contact--whatsapp`. No new palette. The hero button stays `.cta-button` dark, as
+  instructed, and gains only the icon layout.
+
+**Worth knowing:**
+
+- **The sticky bar is a `<div>`, not a `<section>`, on purpose.** W8's reveal selector is
+  `main > section:not(.hero)`; a fixed bar starting at `opacity: 0` would be a fixed
+  invisible bar. Keep it a `div` — or exclude it explicitly if that ever changes.
+- **`footer { padding-bottom: 6rem }` is paired with the bar's measured 72 px.** If the bar
+  grows, that number has to grow with it. There is a comment saying so.
+- **The hero CTA sits below the fold on a 375×667 screen** (its bottom edge is at 756 px).
+  That is not new — it was already true after W5, whose "CTA above the fold" note must have
+  been measured on a taller phone. The sticky bar is what now guarantees a reachable CTA on
+  every mobile screen, so this is covered rather than fixed; a real fix would mean moving
+  the social links below the CTA, which is a layout decision W12b or a later pass can take.
+- **A concurrent session was writing `hugo.toml` for W15 while this ran**, adding
+  `[services.googleAnalytics]` and `[privacy.googleAnalytics]`. Only W2's hunk was
+  committed, per the usual discipline in this repo — see W9's and W14's Outcome blocks.
 
 ### Context
 
@@ -791,8 +875,9 @@ captures most of the value with a data file and a `range` block.
   visitor edit the message before it opens. Progressive enhancement only.
 - Carry the `data-cta` convention from W2 so W15 can track which motive was chosen —
   **but read the privacy note in W15 before deciding what to send.**
-- Update the existing contact-block WhatsApp button (`index.html:113`) to use the shared
-  partial from W2 rather than its own hardcoded URL.
+- ~~Update the existing contact-block WhatsApp button (`index.html:113`) to use the shared
+  partial from W2 rather than its own hardcoded URL.~~ **Already done in W2** — see its
+  Outcome block for why it moved.
 
 **Depends on W2** (the shared partial) and **W12a** (message voice).
 
