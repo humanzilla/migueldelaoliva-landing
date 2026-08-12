@@ -44,10 +44,18 @@ enableGitInfo          = false
     phone       = "+591 6000 5594"
     phoneE164   = "+59160005594"
     hours       = "Lunes a Sábados: 15:00 - 18:00"
-    schemaHours = "Mo-Sa 15:00-18:00"
     specialties = "Autismo • Adicciones • Salud Mental General"
     modality    = "Consulta presencial"
     insurance   = "Consulta por convenios disponibles"
+
+    # Horario estructurado para el JSON-LD (openingHoursSpecification).
+    # `hours`, arriba, es la versión legible que se muestra en la página; las dos
+    # deben decir lo mismo. Los días usan los nombres de schema.org, que la
+    # plantilla convierte a https://schema.org/Monday, etc.
+    [[params.contact.openingHours]]
+      days   = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+      opens  = "15:00"
+      closes = "18:00"
 
   [params.hero]
     name  = "Dr. Miguel de la Oliva"

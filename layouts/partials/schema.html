@@ -1,14 +1,126 @@
+{{- /* JSON-LD: un solo @graph con nodos enlazados por @id.
+
+       Práctica independiente: sin clínica, sin empleador, sin worksFor. El nodo
+       #practice es su propio consultorio — no reintroducir una entidad
+       MedicalClinic ni ninguna afiliación institucional.
+
+       Nada de aggregateRating, review, priceRange ni número de registro: son
+       datos no verificados o prohibidos en publicidad médica. Ver CLAUDE.md. */ -}}
+
 {{- $contact := site.Params.contact -}}
+{{- $base := site.BaseURL | absURL -}}
+{{- $physicianID := printf "%s#physician" $base -}}
+{{- $practiceID := printf "%s#practice" $base -}}
+{{- $websiteID := printf "%s#website" $base -}}
+
 {{- $streetAddress := printf "%s, %s, %s" $contact.building $contact.addressLine $contact.unit -}}
-{{- $addr := dict "@type" "PostalAddress" "streetAddress" $streetAddress "addressLocality" $contact.city "addressRegion" $contact.region "addressCountry" $contact.countryCode -}}
-{{- $geo := dict "@type" "GeoCoordinates" "latitude" $contact.latitude "longitude" $contact.longitude -}}
-{{- /* Práctica independiente: sin clínica, sin empleador, sin worksFor. Él es la práctica.
-       W6 evaluará expresarlo como "@type": ["Physician", "MedicalBusiness"] o con un nodo
-       #practice enlazado — no reintroducir una entidad MedicalClinic. */ -}}
+{{- $addr := dict
+      "@type" "PostalAddress"
+      "streetAddress" $streetAddress
+      "addressLocality" $contact.city
+      "addressRegion" $contact.region
+      "addressCountry" $contact.countryCode -}}
+{{- $geo := dict
+      "@type" "GeoCoordinates"
+      "latitude" $contact.latitude
+      "longitude" $contact.longitude -}}
 {{- $area := dict "@type" "City" "name" $contact.city -}}
-{{- $specialties := slice "Psychiatric" "Addiction" -}}
-{{- $knows := slice "Autismo" "Trastornos del Espectro Autista" "Adicciones" "Salud Mental" "Terapia Familiar" -}}
-{{- $physician := dict "@context" "https://schema.org" "@type" "Physician" "name" site.Params.author "alternateName" "Dr. Miguel de la Oliva" "url" site.BaseURL "image" (absURL site.Params.ogImage) "description" site.Params.description "medicalSpecialty" $specialties "knowsAbout" $knows "telephone" $contact.phoneE164 "address" $addr "geo" $geo "hasMap" $contact.mapUrl "openingHours" $contact.schemaHours "areaServed" $area -}}
-{{- $website := dict "@context" "https://schema.org" "@type" "WebSite" "url" site.BaseURL "name" site.Title "inLanguage" "es-BO" "description" site.Params.description -}}
-<script type="application/ld+json">{{ $physician | jsonify | safeJS }}</script>
-<script type="application/ld+json">{{ $website | jsonify | safeJS }}</script>
+
+{{- /* openingHoursSpecification desde [[params.contact.openingHours]] en
+       hugo.toml, no parseando la cadena legible. */ -}}
+{{- $hours := slice -}}
+{{- range $contact.openingHours -}}
+  {{- $days := slice -}}
+  {{- range .days -}}
+    {{- $days = $days | append (printf "https://schema.org/%s" .) -}}
+  {{- end -}}
+  {{- $hours = $hours | append (dict
+        "@type" "OpeningHoursSpecification"
+        "dayOfWeek" $days
+        "opens" .opens
+        "closes" .closes) -}}
+{{- end -}}
+
+{{- /* sameAs: los cuatro perfiles verificados de data/social.yaml. */ -}}
+{{- $sameAs := slice -}}
+{{- range hugo.Data.social -}}
+  {{- $sameAs = $sameAs | append .url -}}
+{{- end -}}
+
+{{- /* hasCredential: sólo las líneas de data/credentials.yaml marcadas con
+       credentialCategory. Las demás son experiencia o contexto, no títulos. */ -}}
+{{- $credentials := slice -}}
+{{- range $c := hugo.Data.credentials -}}
+  {{- with $c.credentialCategory -}}
+    {{- $credentials = $credentials | append (dict
+          "@type" "EducationalOccupationalCredential"
+          "credentialCategory" .
+          "name" $c.text) -}}
+  {{- end -}}
+{{- end -}}
+
+{{- /* Addiction no existe en la enumeración MedicalSpecialty de schema.org;
+       sólo Psychiatric es válido. Las adicciones van en knowsAbout. */ -}}
+{{- $specialty := "https://schema.org/Psychiatric" -}}
+{{- $knows := slice
+      "Autismo"
+      "Trastorno del Espectro Autista (TEA)"
+      "TDAH"
+      "Adicciones"
+      "Patología dual"
+      "Ansiedad"
+      "Salud mental"
+      "Terapia familiar" -}}
+
+{{- $physician := dict
+      "@type" "Physician"
+      "@id" $physicianID
+      "name" site.Params.author
+      "alternateName" site.Params.hero.name
+      "url" $base
+      "image" (absURL site.Params.ogImage)
+      "description" site.Params.description
+      "medicalSpecialty" $specialty
+      "knowsAbout" $knows
+      "knowsLanguage" "es"
+      "telephone" $contact.phoneE164
+      "address" $addr
+      "geo" $geo
+      "hasMap" $contact.mapUrl
+      "areaServed" $area
+      "openingHoursSpecification" $hours
+      "sameAs" $sameAs
+      "hasCredential" $credentials -}}
+
+{{- /* El consultorio como negocio local. Él es la práctica: mismo nombre,
+       misma dirección, enlazado al médico por @id.
+
+       Sin medicalSpecialty aquí: su dominio es MedicalOrganization, y
+       MedicalBusiness no lo es. La especialidad vive en el nodo #physician. */ -}}
+{{- $practice := dict
+      "@type" "MedicalBusiness"
+      "@id" $practiceID
+      "name" site.Params.author
+      "url" $base
+      "image" (absURL site.Params.ogImage)
+      "telephone" $contact.phoneE164
+      "address" $addr
+      "geo" $geo
+      "hasMap" $contact.mapUrl
+      "areaServed" $area
+      "openingHoursSpecification" $hours
+      "employee" (dict "@id" $physicianID) -}}
+
+{{- $website := dict
+      "@type" "WebSite"
+      "@id" $websiteID
+      "url" $base
+      "name" site.Title
+      "description" site.Params.description
+      "inLanguage" "es-BO"
+      "publisher" (dict "@id" $physicianID) -}}
+
+{{- $graph := dict
+      "@context" "https://schema.org"
+      "@graph" (slice $physician $practice $website) -}}
+<script type="application/ld+json">{{ $graph | jsonify | safeJS }}</script>

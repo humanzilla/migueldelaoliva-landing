@@ -18,7 +18,7 @@ block, insurance/`seguros` copy. These need answers from the doctor first.
 | W7 — robots.txt AI crawler rules | 1A | ✅ **Done** — 2026-08-12 |
 | W9 — Favicon | 1A | ⬜ Not started |
 | W4 — Remove clinic affiliation | 1B | ✅ **Done** — 2026-08-12 |
-| W6 — Schema `@graph` | 1B | ⬜ Not started |
+| W6 — Schema `@graph` | 1B | ✅ **Done** — 2026-08-12 |
 | W8 — Reduced motion / no JS-hidden content | 1C | ⬜ Not started — *reported done 2026-08-12, but no changes found in working tree; see item* |
 | W5 — Keyword-led H1 | 2 | ⬜ Not started |
 | W2 — WhatsApp primary CTA | 2 | ⬜ Not started |
@@ -328,7 +328,75 @@ claude "Read TODO.md and implement work item W4: remove the clinic affiliation f
 
 ---
 
-## W6 — Expand the JSON-LD schema
+## W6 — Expand the JSON-LD schema ✅ DONE
+
+### Outcome — 2026-08-12
+
+`layouts/partials/schema.html` rewritten as a single `@graph` with three `@id`-linked
+nodes — `#physician` (Physician), `#practice` (MedicalBusiness, `employee` → `#physician`)
+and `#website` (WebSite, `publisher` → `#physician`). Two `<script>` tags became one.
+`sameAs` now carries the four verified profiles, `hasCredential` the two formal
+qualifications, and `openingHoursSpecification` is built from structured config.
+
+- **Files changed:** `layouts/partials/schema.html` (rewritten), `hugo.toml`
+  (added `[[params.contact.openingHours]]`, deleted `schemaHours`),
+  `data/credentials.yaml` (restructured — see deviations), `layouts/index.html`
+  (one line, `{{ . }}` → `{{ .text }}`, follows from the credentials restructure).
+- **Verified:** `hugo --gc --minify` builds clean — 4 pages, no warnings. The rendered
+  JSON-LD parses as valid JSON, and every type and property was checked against the
+  schema.org vocabulary itself (`schemaorg-current-https.jsonld`, downloaded and walked
+  programmatically: each property's `domainIncludes` against the node's full ancestry,
+  each `https://schema.org/*` value against the enumeration members). **Result: zero
+  errors.** Accents survive the `jsonify | safeJS` pipeline intact — "Ibérica", "Máster",
+  "Patología dual" all render correctly. `grep` of `public/index.html` confirms no
+  `worksFor`, no `MedicalClinic`, no `aggregateRating`, no `review`, no `priceRange`.
+  The four credential lines still render unchanged in the visible page.
+- **The audit's `Addiction` finding is confirmed, and was stronger than stated:**
+  `Addiction` is not in the schema.org vocabulary *at all* — not merely absent from the
+  `MedicalSpecialty` enumeration. `Psychiatric` is confirmed as a `MedicalSpecialty`
+  member and is now emitted in URL form; addictions moved to `knowsAbout`.
+
+**Deviations — all four are deliberate, read them before changing this file:**
+
+- **`availableLanguage` → `knowsLanguage`.** The item asked for `availableLanguage: es`,
+  but that property's domain is `ContactPoint` / `ServiceChannel` / `Service` — not
+  `Physician`, which schema.org derives from `MedicalOrganization`, not from `Person`.
+  Emitting it would have produced exactly the kind of invalid-property warning this item
+  exists to remove. `knowsLanguage` has `Organization` in its domain and says the same
+  thing. Do not "restore" `availableLanguage`.
+- **`hasCredential` does not range over all of `data/credentials.yaml`.** Two of its four
+  lines are not credentials — "Psiquiatra con más de 15 años de experiencia clínica" is
+  experience, and "Convencido de que cada historia merece ser comprendida" is a statement
+  of belief. Publishing either as an `EducationalOccupationalCredential` would be a
+  factual misrepresentation, and promoting the years-of-experience claim into machine-
+  readable schema is exactly what CLAUDE.md's "never invent credentials" rule guards
+  against. So `credentials.yaml` became a list of `text:` entries where an optional
+  `credentialCategory:` marks the two real qualifications, and only those are exported.
+  **This forced a one-line change to `layouts/index.html:41`** (`{{ . }}` → `{{ .text }}`)
+  — a file the contention map assigns to Wave 2. It is one line in the credentials box,
+  far from the hero and contact regions W5/W2/W3/W1 rewrite, so conflict risk is
+  negligible, but it is a scope deviation and Wave 2 should know the file moved.
+- **`medicalSpecialty` is on `#physician` only, not on `#practice`.** The vocabulary check
+  caught it: its domain is `MedicalOrganization` / `Hospital` / `MedicalClinic` /
+  `Physician`, and `MedicalBusiness` descends from `LocalBusiness` instead. It was an
+  error in the first draft of this rewrite; the local validation is what found it.
+- **`schemaHours` deleted** from `hugo.toml`. Nothing else read it — the item permitted
+  either choice. The human-readable `hours` string is untouched and still drives the page.
+
+**Worth knowing for whoever revisits the schema:** `Physician` is *already* a subclass of
+`MedicalBusiness` in schema.org, so `#practice` necessarily repeats `name`, `address`,
+`geo`, `telephone` and `openingHoursSpecification` from `#physician`. That is what this
+item specified and it validates cleanly, but it does mean two nodes describe one real
+entity. If that duplication ever reads as entity noise in Search Console, the alternative
+W4 floated — a single node typed `["Physician", "MedicalBusiness"]` at `#physician`, with
+`#practice` dropped — expresses the same thing without the repetition. Not a defect today;
+a documented fork in the road.
+
+**Not done as literally described:** the item suggested pasting into
+`validator.schema.org`. That is a browser-only JS app, so validation was done locally
+against the published vocabulary instead, as the item's own alternative allowed. A
+confirmation run through Google's Rich Results Test after deploy is still worth doing —
+it applies Google-specific requirements the vocabulary alone does not express.
 
 ### Context
 
@@ -397,6 +465,14 @@ claude "Read TODO.md and implement work item W6: rewrite layouts/partials/schema
 > `grep -rn 'prefers-reduced-motion\|scroll-behavior\|js-reveal' assets/ layouts/` returns
 > nothing. Left as **Not started**. If a session did this work, its edits did not reach
 > the working tree — re-run the start command below.
+>
+> **Update, later on 2026-08-12 (noted while doing W6, not verified):** the working tree
+> now *does* carry uncommitted changes to `assets/js/main.js`, `assets/css/main.css` and
+> `layouts/partials/head.html` — the last adding a `.js-reveal` opt-in script, which is
+> W8's shape. `layouts/robots.txt` also shows as modified despite W7 being committed.
+> W6 left all of it alone and committed only its own files. Whoever picks up W8 should
+> review those changes against this item's checklist and either finish and commit them or
+> discard them — do not assume they are complete, and do not `git add -A` around them.
 
 ### Context
 
