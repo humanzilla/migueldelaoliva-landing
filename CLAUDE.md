@@ -1,11 +1,25 @@
 # CLAUDE.md — migueldelaoliva.com
 
 Personal site of **Dr. Miguel Angel de la Oliva**, psiquiatra in Santa Cruz de la Sierra,
-Bolivia. Hugo, single page, no JS framework. The entire proposition of the page is
-**trust**, so the copy is the product. Read this before writing or editing any
-user-facing string.
+Bolivia. Hugo, single page. The entire proposition of the page is **trust**, so the copy
+is the product. Read this before writing or editing any user-facing string.
 
 `TODO.md` at the repo root is the source of truth for planned work and its order.
+
+**JavaScript: Alpine.js, self-hosted, progressive enhancement only.** W17 introduced it
+for the message composer; before that the site had no framework. Three rules come with it
+and none is negotiable:
+
+- **Self-hosted, never a CDN.** `assets/js/vendor/alpine.min.js` is committed and served
+  from this domain. A third-party request on page load is what W14 removed, and a psychiatry
+  site should not hand a visitor list to anyone before they click.
+- **The page must be complete before Alpine runs.** Anything Alpine builds ships
+  server-rendered first — real `<a href>`s, real content — and Alpine replaces it. If the
+  script never arrives, what stays on screen has to be usable, not a hole. See
+  `layouts/partials/composer.html`.
+- **No Spanish inside the JavaScript.** Copy lives in `data/` and reaches Alpine as JSON,
+  so the no-JS and the interactive paths cannot drift apart, and so W12b has one place to
+  sweep.
 
 ---
 

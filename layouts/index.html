@@ -114,15 +114,23 @@
           {{/* Mapa con carga bajo demanda: nada se pide a Google hasta que alguien
                toca el botón. El <iframe> vive dentro de un <template>, que el
                navegador no carga. Sin JavaScript el bloque queda oculto y la
-               ubicación sigue disponible en «Ver en Google Maps», abajo. */}}
-          <div class="map-embed" data-map-facade hidden>
-            <button type="button" class="map-facade" aria-label="Ver mapa del consultorio en {{ $contact.building }}, {{ $contact.city }}. Se carga desde Google Maps.">
+               ubicación sigue disponible en «Ver en Google Maps», abajo.
+
+               El foco se mueve al iframe al cargarlo porque el botón que lo
+               tenía desaparece; sin eso, quien navega con teclado termina en
+               <body> y pierde el lugar donde estaba. */}}
+          <div class="map-embed" data-map-facade hidden
+               x-data="{ cargado: false }" x-init="$el.hidden = false">
+            <button type="button" class="map-facade" x-show="!cargado"
+                    @click="cargado = true; $nextTick(() => $refs.mapa && $refs.mapa.focus())"
+                    aria-label="Ver mapa del consultorio en {{ $contact.building }}, {{ $contact.city }}. Se carga desde Google Maps.">
               <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C7.86 2 4.5 5.36 4.5 9.5c0 5.5 6.5 11.5 7 12 .5-.5 7-6.5 7-12C18.5 5.36 15.14 2 12 2zm0 10.25a2.75 2.75 0 1 1 0-5.5 2.75 2.75 0 0 1 0 5.5z"/></svg>
               <span class="map-facade__label">Ver mapa</span>
               <span class="map-facade__note">Se carga desde Google Maps al tocarlo.</span>
             </button>
-            <template>
+            <template x-if="cargado">
               <iframe
+                x-ref="mapa"
                 src="https://www.google.com/maps?q={{ $contact.latitude }},{{ $contact.longitude }}&amp;hl=es&amp;z=16&amp;output=embed"
                 title="Mapa de ubicación: {{ $contact.building }}, {{ $contact.city }}"
                 loading="lazy"
@@ -167,23 +175,8 @@
 
            Lo que la reemplaza ataca el punto donde de verdad se pierde la
            gente: nadie deja de escribir por el precio, deja de escribir porque
-           no sabe cómo empezar la primera frase sobre su salud mental. Cada
-           opción abre WhatsApp con esa frase ya escrita.
-
-           Son enlaces de verdad, no un compositor en JavaScript: funcionan sin
-           JS, se recorren con el teclado y el mensaje se arma en el servidor.
-           Todos salen con data-cta="motivo" y ninguno dice cuál se eligió. */}}
-      <div class="contact-composer">
-        <h3>¿Sobre qué querés consultar?</h3>
-        <p class="contact-composer__note">Elegí lo que más se parezca a tu situación. WhatsApp se abre con el mensaje ya escrito y podés cambiarlo antes de enviarlo.</p>
-        <ul class="motivos-list">
-          {{- range hugo.Data.motivos }}
-          <li>
-            {{ partial "whatsapp-cta.html" (dict "placement" "motivo" "variant" "motivo" "label" .label "message" .message) }}
-          </li>
-          {{- end }}
-        </ul>
-      </div>
+           no sabe cómo empezar la primera frase sobre su salud mental. */}}
+      {{ partial "composer.html" . }}
     </div>
   </div>
 </section>

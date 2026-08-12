@@ -11,5 +11,14 @@
   {{- partial "footer.html" . -}}
   {{- $js := resources.Get "js/main.js" | minify | fingerprint -}}
   <script src="{{ $js.RelPermalink }}" integrity="{{ $js.Data.Integrity }}" defer></script>
+  {{- /* Alpine va después de main.js y también con `defer`: los dos se ejecutan
+         en orden de documento, así que los componentes ya están registrados
+         cuando Alpine arranca. Se sirve desde el propio dominio —nunca desde un
+         CDN— porque una petición a terceros al cargar la página es justo lo que
+         W14 sacó. Sólo en la portada, que es la única que lo usa. */ -}}
+  {{- if .IsHome -}}
+  {{- $alpine := resources.Get "js/vendor/alpine.min.js" | fingerprint -}}
+  <script src="{{ $alpine.RelPermalink }}" integrity="{{ $alpine.Data.Integrity }}" defer></script>
+  {{- end -}}
 </body>
 </html>

@@ -27,6 +27,7 @@ block, insurance/`seguros` copy. These need answers from the doctor first.
 | W15 — GA4 + conversion tracking | 3 | ✅ **Done** — 2026-08-12 |
 | W12b — Voice and tone sweep | 4 | ⬜ Not started |
 | W16 — Commit the finished-but-uncommitted items | — | ⬜ Not started |
+| W17 — Alpine.js + stepped message composer | — | ✅ **Done** — 2026-08-12 |
 
 Legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 
@@ -828,6 +829,13 @@ claude "Read TODO.md and implement work item W2: make WhatsApp the primary repea
 
 ### Outcome — 2026-08-12
 
+> **Partly superseded by W17 the same day.** The dead box is gone for good, and the
+> privacy, no-JS and encoding properties below still hold — W17 re-verified every one of
+> them. What changed: the seven fixed links became the **fallback** layer under an Alpine
+> composer, `data/motivos.yaml` was restructured from whole messages into motive × persona
+> clauses, and the "optional textarea cannot degrade" conclusion below was wrong in its
+> conclusion, not its reasoning — see W17.
+
 "Agendamiento en línea — Próximamente" is gone. The cell it occupied now holds
 **¿Sobre qué querés consultar?** — eight plain `<a href>`s, one per motive, each opening
 WhatsApp with the first message already written. No JavaScript is involved in producing
@@ -1315,6 +1323,121 @@ claude "Read TODO.md and implement work item W16: commit the finished-but-uncomm
 
 ---
 
+## W17 — Alpine.js and the stepped message composer ✅ DONE
+
+Raised by the doctor's site owner after W3+W1 landed: the fixed links worked, but the
+proposal this whole round came from had an **interactive** composer, and that was the part
+that engaged people. Reimplement the JS layer on Alpine.js and build it.
+
+### Outcome — 2026-08-12
+
+The contact card now holds **"Tu mensaje, ya escrito"**: three steps that appear one at a
+time — qué te trae · para quién es · tu nombre — with a WhatsApp-style preview bubble that
+rebuilds on every choice, and a button that opens the chat with exactly that text.
+
+**Two layers, and the bottom one is the point.** The HTML arrives with seven
+server-rendered `<a href>`s (W3+W1's list, intact). Alpine hides them in `init()` and shows
+the composer. If Alpine never loads — blocked, slow, JS off — the links stay and the
+component is invisible. That failure mode was tested, not assumed: **check 2 below aborts
+the Alpine request** and the page is still fully usable.
+
+- **Files changed:** `assets/js/vendor/alpine.min.js` (new, vendored, 45 KB),
+  `layouts/partials/composer.html` (new), `data/motivos.yaml` (restructured),
+  `layouts/index.html` (composer → partial; map facade → Alpine),
+  `layouts/_default/baseof.html` (Alpine `<script>`, home page only),
+  `assets/js/main.js` (composer component; map IIFE deleted),
+  `assets/css/main.css` (chips, steps, input, bubble), `CLAUDE.md` (the "no JS framework"
+  line was now false — replaced with the three rules Alpine comes with).
+
+**The data model changed shape.** `data/motivos.yaml` used to hold seven finished messages.
+It now holds a `plantilla` plus `motivos` (7) and `personas` (3) as *clauses*, which the
+composer assembles: `Hola, doctor. [Soy {nombre}.] Quisiera agendar una consulta por
+{motivo}. [Es {persona}.] ¿Qué horarios tiene disponibles?` — the proposal's own assembly.
+21 combinations out of 10 short strings, instead of 21 hand-written messages.
+
+**There is no Spanish in the JavaScript.** The YAML reaches Alpine as a
+`<script type="application/json">` block rendered by the partial, so the fallback links and
+the composer are built from the same strings and cannot drift. `main.js` only decides the
+order the pieces go in. W12b sweeps one file, not two.
+
+**Verified** — `hugo --gc --minify` builds clean. Playwright MCP headless `--isolated`,
+against the built `public/` on port 1616.
+
+| # | Check | Result |
+| --- | --- | --- |
+| 1 | **Scripting disabled** | 7 fallback links with real `?text=` hrefs, composer hidden, map block hidden, **0 iframes, 0 third-party requests**, all 6 sections `opacity: 1` |
+| 2 | **Alpine request aborted** | fallback visible with its 7 links, composer still hidden, map still hidden — degrades to exactly the no-JS state |
+| 3 | Normal load, before any click | 8 requests; the only third-party ones are W15's two GA hits. **Nothing to Google Maps**, and Alpine is same-origin |
+| 4 | Map facade after click | exactly one iframe, `title` / `loading="lazy"` / `referrerpolicy` intact, focus moved into the iframe, facade hidden — W14's behaviour, now in `<template x-if>` |
+| 5 | Step flow (pointer) | step 2 appears on choosing a motive, step 3 on choosing a persona, preview from step 1 |
+| 6 | Step flow (keyboard only) | Space on a chip → focus lands on the new step (`paso2`, then `paso3`) → Tab reaches the name field → typing updates the bubble |
+| 7 | Focus is not stolen twice | going back and changing step 1 leaves focus on the chip clicked; the jump-forward happens once per step, by design |
+| 8 | Message assembly | with and without a name, with and without a persona — all four shapes read correctly |
+| 9 | Encoding round-trip | `José Ñandú` + `¿` decode back byte-identical from the built href |
+| 10 | **Analytics still leaks nothing** | `gtag` stubbed; two *different* motives produce two **identical** `{placement: 'motivo'}` hits |
+| 11 | `prefers-reduced-motion: reduce` | `js-reveal` never armed, sections opaque, chip transitions zeroed, composer fully functional |
+| 12 | 375 px | no horizontal overflow; chips wrap to four rows; bubble and CTA fit |
+| 13 | Console | 0 errors |
+
+**Deviations and judgment calls — seven, all deliberate:**
+
+- **W3+W1 said an editable message "cannot degrade without JS". That was wrong** — or
+  rather, right about a `<textarea>` bolted onto static links and wrong as a conclusion.
+  Two layers solve it: the no-JS visitor gets fixed messages, the JS visitor gets an
+  editable one. Recording it because the earlier reasoning is still in this file above and
+  a reader deserves to know which of the two is current.
+- **`safeJS` is load-bearing on the JSON block.** Go treats the contents of any `<script>`
+  as JavaScript and, without it, re-escapes the JSON into a *quoted string* —
+  `JSON.parse` then returns a string, and the composer boots with no phrases. Caught in the
+  build, before the browser. Do not remove it.
+- **The proposal's timestamp and `✓✓` on the preview bubble were dropped.** A read receipt
+  on a message that has not been sent says something untrue, on a page whose entire
+  proposition is trust — and the note right below the button promises the opposite
+  ("no se envía nada hasta que vos toques enviar"). The bubble keeps the shape and the
+  colour; it does not fake delivery.
+- **The messages address the doctor as `usted`; the proposal used `vos`** ("¿Qué horarios
+  tenés disponibles?"). W2 decided this and CLAUDE.md carries it: the site speaks to the
+  reader as `vos`, but these sentences are written *by* the reader *to* a psychiatrist they
+  have not met. Changing it is a copy decision for W12b, not a side effect of this item.
+- **The composer stayed in the contact section.** The proposal puts it in the hero as a
+  sticky card. That is a layout change the design constraint rules out, and the hero
+  already has W2's primary WhatsApp CTA.
+- **The scroll reveal was left as-is** — plain `IntersectionObserver` in `main.js`. Moving
+  it to Alpine needs the `x-intersect` plugin (another vendored file) and would put W8's
+  carefully-verified no-JS and reduced-motion guarantees back in play for no gain. The map
+  facade *was* converted, because `<template x-if>` expresses the inert-until-clicked trick
+  more directly than cloning a template by hand, and it deleted 20 lines.
+- **Alpine's URL is assembled client-side**, breaking whatsapp-cta.html's "the URL is built
+  in exactly one place". Unavoidable: an href that changes on every keystroke cannot be
+  built by the server. What is preserved is the part that matters — the number still comes
+  from `params.contact.phoneE164`, through the partial for the fallback links and through
+  the JSON `base` for the composer. It is not hand-written anywhere.
+
+**Cost, stated plainly:** Alpine is 45 KB minified (~15 KB over the wire) on a site whose
+entire JS was ~3 KB. It loads `defer`, only on the home page, and nothing waits for it.
+That is the price of the interactive composer and it was the doctor's call to pay it.
+
+**Not done — worth a later decision:** nobody has seen this on a real phone over a real
+connection. Everything above is a headless browser on localhost.
+
+### Instructions (for anyone re-running this)
+
+- Vendor Alpine into `assets/js/vendor/`, load it `defer` **after** `main.js` and only where
+  it is used. Register components on `alpine:init`. Never a CDN.
+- Server-render the working version first; let Alpine replace it in `init()`.
+- Keep every Spanish string in `data/`, hand it to Alpine as JSON, and keep the JavaScript
+  monolingual.
+- `data-cta="motivo"` and nothing else on the composer's link — the W15 privacy rule is
+  unchanged and the allowlist in `main.js` still enforces it.
+
+### Start command
+
+```bash
+claude "Read TODO.md and implement work item W17: reimplement the contact-section message composer as a stepped Alpine.js component, with the server-rendered links kept as the no-JS fallback. Follow the instructions in that item — self-hosted Alpine, no Spanish in the JavaScript, and data-cta=\"motivo\" only. Verify with JS disabled and with the Alpine request blocked. When finished, mark W17 done in TODO.md per the Completion protocol."
+```
+
+---
+
 # Execution plan — what runs in parallel, what must run serially
 
 ## The constraint
@@ -1329,9 +1452,9 @@ cost exceeds the time saved.
 
 | File | Items that write to it |
 | --- | --- |
-| `layouts/index.html` | W4, W5, W2, W3+W1, W14, W12b |
-| `assets/css/main.css` | W9, W8, W5, W2, W3+W1, W14 |
-| `assets/js/main.js` | W8, W14, W15 |
+| `layouts/index.html` | W4, W5, W2, W3+W1, W14, W12b, W17 |
+| `assets/css/main.css` | W9, W8, W5, W2, W3+W1, W14, W17 |
+| `assets/js/main.js` | W8, W14, W15, W17 |
 | `layouts/partials/schema.html` | W4, W6 |
 | `layouts/partials/head.html` | W9, W15, **W8** (the `.js-reveal` opt-in script — missed in the original map, which is why Lane A and Lane C collided) |
 | `hugo.toml` | W4, W5, W6, W15, W12b |

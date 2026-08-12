@@ -1,72 +1,82 @@
-# Motivos de consulta — el mensaje con el que WhatsApp se abre ya escrito.
+# Redactor del primer mensaje de WhatsApp.
 #
-# Los escribe el VISITANTE, no el doctor. Van en primera persona y tratan de
-# usted, que es como un cruceño le escribe a un psiquiatra que todavía no
-# conoce. (El sitio trata de vos a quien lee; acá quien lee es el que escribe.)
+# La barrera real de una primera consulta psiquiátrica no es el precio: es no
+# saber cómo empezar a escribir. Acá el mensaje se arma con dos elecciones —qué
+# te trae y para quién es— y se abre WhatsApp con el texto ya cargado.
 #
-# Cada mensaje es una APERTURA, no una historia clínica: dice lo justo para
-# pedir una cita y ninguno da por hecho un diagnóstico. Por eso «un posible
-# diagnóstico de autismo» y no «tengo autismo», y por eso «un consumo que me
-# preocupa» y no una etiqueta sobre la persona.
+# Este archivo es la ÚNICA fuente de esas frases. Lo lee el servidor, para
+# armar los enlaces que funcionan sin JavaScript, y lo lee Alpine, que recibe
+# este mismo contenido como JSON. Si cambiás una frase acá, cambian las dos
+# versiones a la vez; no hay copia en el JavaScript.
 #
-# `id` es interno y NO se envía a analítica. Los enlaces salen con
-# data-cta="motivo" a secas: el motivo de una consulta psiquiátrica unido al
+# QUIÉN HABLA: los mensajes los escribe el VISITANTE, no el doctor. Van en
+# primera persona y lo tratan de usted, que es como un cruceño le escribe a un
+# psiquiatra que todavía no conoce. (El sitio trata de vos a quien lee; acá
+# quien lee es el que escribe.)
+#
+# QUÉ NO DICEN: ninguno da por hecho un diagnóstico. Por eso «una evaluación
+# relacionada con autismo» y no «tengo autismo», y por eso «un consumo que me
+# preocupa» y no una etiqueta sobre la persona. Son aperturas, no historias
+# clínicas.
+#
+# ANALÍTICA: los `id` son internos y no se envían. Todos los enlaces salen con
+# data-cta="motivo" a secas — el motivo de una consulta psiquiátrica unido al
 # identificador de un dispositivo es un dato de salud. Ver W15 en TODO.md y la
 # prohibición 6 de CLAUDE.md.
-#
-# `label` es lo que se ve y se lee en voz alta. Corto, sin jerga, y sin decidir
-# por nadie lo que le pasa.
 
-- id: autismo-adulto
-  label: Autismo en mí
-  message: >-
-    Hola doctor, le escribo desde su página web porque me gustaría consultar
-    sobre un posible diagnóstico de autismo en mí. ¿Podemos coordinar una cita?
+# Piezas del mensaje. Los marcadores {nombre}, {motivo} y {persona} se
+# reemplazan igual en Hugo (`replace`) y en Alpine (`String.replace`).
+plantilla:
+  sinNombre: "Hola, doctor."
+  conNombre: "Hola, doctor. Soy {nombre}."
+  motivo: "Quisiera agendar una consulta por {motivo}."
+  persona: "Es {persona}."
+  cierre: "¿Qué horarios tiene disponibles?"
 
-- id: autismo-hijo
-  label: Autismo en mi hija o hijo
-  message: >-
-    Hola doctor, le escribo desde su página web porque me gustaría consultar
-    sobre un posible diagnóstico de autismo en mi hija o hijo. ¿Podemos
-    coordinar una cita?
+# Paso 1 — qué te trae. `frase` entra en «Quisiera agendar una consulta por …»,
+# así que va en minúscula y sin punto final.
+motivos:
+  - id: autismo
+    label: Autismo
+    frase: "una evaluación relacionada con autismo"
 
-- id: atencion
-  label: Atención, concentración y TDAH
-  message: >-
-    Hola doctor, le escribo desde su página web porque me gustaría consultar
-    sobre dificultades de atención y concentración. ¿Podemos coordinar una cita?
+  - id: atencion
+    label: Atención y TDAH
+    frase: "dificultades de atención y organización"
 
-- id: consumo
-  label: Consumo y adicciones
-  message: >-
-    Hola doctor, le escribo desde su página web porque hay un consumo que me
-    preocupa y me gustaría consultar con usted. ¿Podemos coordinar una cita?
+  - id: consumo
+    label: Consumo
+    frase: "un consumo que me preocupa"
 
-- id: ansiedad
-  label: Ansiedad
-  message: >-
-    Hola doctor, le escribo desde su página web porque hace un tiempo vengo
-    sintiendo mucha ansiedad y me gustaría consultar con usted. ¿Podemos
-    coordinar una cita?
+  - id: ansiedad
+    label: Ansiedad
+    frase: "ansiedad o angustia que no baja"
 
-- id: animo
-  label: Ánimo bajo
-  message: >-
-    Hola doctor, le escribo desde su página web porque me vengo sintiendo con el
-    ánimo bajo y me gustaría consultar con usted. ¿Podemos coordinar una cita?
+  - id: animo
+    label: Ánimo bajo
+    frase: "ánimo bajo y desgano"
 
-- id: familia
-  label: Orientación para la familia
-  message: >-
-    Hola doctor, le escribo desde su página web porque me gustaría consultar
-    sobre cómo acompañar a alguien de mi familia. ¿Podemos coordinar una cita?
+  - id: familia
+    label: Orientación familiar
+    frase: "orientación como familia"
 
-# Para quien llega hasta acá y no se reconoce en ninguna de las anteriores. La
-# franja del medio de la página ya dice «no hace falta que tengas las palabras
-# exactas»; esta opción es esa misma frase convertida en un enlace.
-- id: no-se-como-decirlo
-  label: Todavía no sé cómo explicarlo
-  message: >-
-    Hola doctor, le escribo desde su página web porque me gustaría consultar con
-    usted. Todavía no sé bien cómo explicar lo que me pasa. ¿Podemos coordinar
-    una cita?
+  # Para quien llega hasta acá y no se reconoce en ninguna de las anteriores.
+  # La franja del medio de la página ya dice «no hace falta que tengas las
+  # palabras exactas»; esta opción es esa misma frase, elegible.
+  - id: no-se
+    label: Todavía no sé
+    frase: "algo que todavía no sé bien cómo explicar"
+
+# Paso 2 — para quién es. `frase` entra en «Es …».
+personas:
+  - id: mi
+    label: Para mí
+    frase: "para mí"
+
+  - id: hijo
+    label: Para mi hija o hijo
+    frase: "para mi hija o hijo"
+
+  - id: familiar
+    label: Para un familiar
+    frase: "para mi pareja o un familiar"

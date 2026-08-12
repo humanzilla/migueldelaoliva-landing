@@ -539,6 +539,100 @@ nav {
   gap: 0.5rem;
 }
 
+/* Redactor por pasos. Lo monta Alpine sobre la lista de enlaces de arriba,
+   que es lo que se ve mientras tanto y lo que queda si el JS no llega. */
+.composer-step {
+  margin-bottom: 1.25rem;
+}
+
+/* Las etiquetas de paso van en versalitas: son rótulos de campo, no títulos, y
+   compiten con el h3 de la tarjeta si se les da tamaño. */
+.composer-step__label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.chip {
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+  color: #4b5563;
+  background: #ffffff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 999px;
+  padding: 0.5rem 0.85rem;
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.chip:hover {
+  border-color: #1f2937;
+  color: #1f2937;
+}
+
+/* El estado elegido es el gris pizarra de la marca, no el verde: el verde en
+   esta tarjeta significa «esto abre WhatsApp» y no debe significar otra cosa. */
+.chip[aria-pressed="true"] {
+  background: #1f2937;
+  border-color: #1f2937;
+  color: #ffffff;
+}
+
+.composer-input {
+  width: 100%;
+  font: inherit;
+  font-size: 0.95rem;
+  color: #1f2937;
+  background: #ffffff;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 0.65rem 0.85rem;
+}
+
+.composer-input:focus {
+  border-color: #1f2937;
+  outline: none;
+}
+
+/* Vista previa. El verde pálido y la esquina mordida son los de una burbuja de
+   WhatsApp: es la única forma de que se lea como lo que va a pasar al tocar el
+   botón. Son los dos únicos colores nuevos de este componente. */
+.bubble {
+  background: #e9fbe3;
+  border-radius: 12px 12px 12px 3px;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.925rem;
+  line-height: 1.5;
+  color: #16352a;
+}
+
+.composer__cta {
+  width: 100%;
+  justify-content: center;
+  padding: 0.85rem 1.1rem;
+  font-size: 1rem;
+}
+
+.composer__foot {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  text-align: center;
+  margin-top: 0.75rem;
+}
+
 /* Footer */
 footer {
   background: #f9fafb;
