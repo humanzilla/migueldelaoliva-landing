@@ -23,7 +23,7 @@ block, insurance/`seguros` copy. These need answers from the doctor first.
 | W5 — Keyword-led H1 | 2 | ✅ **Done** — 2026-08-12 |
 | W2 — WhatsApp primary CTA | 2 | ⬜ Not started |
 | W3 + W1 — Dead box → message composer | 2 | ⬜ Not started |
-| W14 — Map click-to-load facade | 3 | ⬜ Not started |
+| W14 — Map click-to-load facade | 3 | ✅ **Done** — 2026-08-12 |
 | W15 — GA4 + conversion tracking | 3 | ⬜ Not started |
 | W12b — Voice and tone sweep | 4 | ⬜ Not started |
 | W16 — Commit the finished-but-uncommitted items | — | ⬜ Not started |
@@ -804,7 +804,71 @@ claude "Read TODO.md and implement work items W3 and W1 together: delete the dea
 
 ---
 
-## W14 — Keep the map, remove the third-party call on page load
+## W14 — Keep the map, remove the third-party call on page load ✅ DONE
+
+### Outcome — 2026-08-12
+
+The iframe now ships inside a `<template>`, which the parser turns into an inert fragment
+and never fetches, fronted by a real `<button>` that clones it into place on activation.
+**Measured, not assumed: zero third-party requests on page load.**
+
+- **Files changed:** `layouts/index.html` (map block), `assets/css/main.css`
+  (`.map-facade` rules), `assets/js/main.js` (facade IIFE).
+- **A styled placeholder was chosen over a static map image** — the item allowed either.
+  It needs no API key, commits no binary, and every colour it uses (`#f9fafb`, `#e5e7eb`,
+  `#1f2937`, `#f3f4f6`, `#d1d5db`, `#6b7280`) already existed in `main.css`, so it adds no
+  new palette. It is sized to exactly the 220 px the iframe occupies, so nothing shifts
+  when the map swaps in.
+- **Iframe `title` fixed**, as W4 handed over: now
+  `"Mapa de ubicación: Edificio Las Palmas Golf View, Santa Cruz de la Sierra"`. The
+  `$contact.clinic` interpolation and its leading comma are gone, and `grep` finds no
+  `clinic` anywhere in the built page.
+- **Focus is moved into the iframe on activation.** The button that had focus is destroyed
+  by the swap; without this a keyboard visitor would be dropped on `<body>` and lose
+  their place.
+- `loading="lazy"` and `referrerpolicy="no-referrer-when-downgrade"` are preserved on the
+  injected iframe, and `.map-embed` sizing is untouched.
+
+**Verified** — Playwright MCP against the built output (per CLAUDE.md), served from a
+scratch directory on port 1414 because another session held 1399.
+
+| # | Check | Result |
+| --- | --- | --- |
+| 1 | Requests on load | 4 total, **0 third-party, 0 Google** |
+| 2 | Accessible name | `button "Ver mapa del consultorio en Edificio Las Palmas Golf View, Santa Cruz de la Sierra. Se carga desde Google Maps."` — contains its visible label, so WCAG 2.5.3 holds |
+| 3 | Keyboard | focus lands on the `<button>`; **Enter** loads the map — exactly 1 Google request, and only then |
+| 4 | After activation | iframe injected, `title`/`loading`/`referrerpolicy` intact, focus on the iframe |
+| 5 | **Scripting disabled** | 0 third-party requests, **0 live iframes**, facade hidden, "Ver en Google Maps" visible with the correct `mapUrl`, all 5 sections visible |
+| 6 | Reduced motion | `js-reveal` never armed, facade transition zeroed, sections opaque, facade still functional |
+| 7 | `[hidden]` not overridden | computed `display: none` — no `.map-embed` rule outranks the UA stylesheet |
+
+`hugo --gc --minify` builds clean.
+
+**vercel.json sanity check, as the item asked:** `X-Frame-Options: SAMEORIGIN` governs
+this site *being* framed, not it framing Google — no effect. `Referrer-Policy` at the
+document level does not override the iframe's own `referrerpolicy`. One thing worth
+knowing: `Permissions-Policy: geolocation=()` disables the map's "your location" dot. That
+was already true of the eager iframe, so this item regresses nothing, but the blue dot has
+never worked on this site and never will while that header stands.
+
+**Worth correcting in CLAUDE.md:** its browser-testing section, and W8's Outcome, both say
+a scripting-disabled load cannot be verified because `--dump-dom` itself needs scripting.
+That is true of Chrome's CLI but **not** of Playwright — `browser.newContext({
+javaScriptEnabled: false })` loads the page with JS genuinely off and the DOM stays
+queryable. Check 5 above is a real no-JS load, not a static proof. This also
+independently confirms W8's claim, which had rested on inference.
+
+**Deviations:**
+- **Ordering.** The item says to run after W3+W1; those have not started. Run now on
+  request. The risk is low but real: W3+W1 replaces the `.contact-form` cell of
+  `.contact-grid`, while this touches `.contact-info` — adjacent cells, not the same one.
+- **Copy left alone.** `.map-facade__note` reads "Se carga desde Google Maps al tocarlo.",
+  which assumes a touchscreen. A device-neutral rewrite was proposed and declined; leaving
+  it for W12b, which owns the copy sweep.
+- **Committed as W14's hunks only.** `main.js`, `main.css` and `index.html` all held
+  uncommitted work from other items when this ran (W8's reveal rewrite, W5's hero, live in
+  another session). Only this item's hunks were staged, so the commit reverts cleanly —
+  the same discipline W8 and W9 used. See W16.
 
 ### Context
 

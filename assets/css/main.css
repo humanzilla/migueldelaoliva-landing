@@ -333,6 +333,56 @@ nav {
   display: block;
 }
 
+/* Fachada del mapa: ocupa exactamente el alto del iframe que va a reemplazar,
+   así el bloque no salta al cargarse. */
+.map-facade {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 220px;
+  padding: 1rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-family: inherit;
+  line-height: 1.4;
+  text-align: center;
+  color: #1f2937;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.map-facade:hover {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+/* Offset negativo: .map-embed recorta con overflow, un contorno por fuera se perdería. */
+.map-facade:focus-visible {
+  outline: 2px solid #1f2937;
+  outline-offset: -2px;
+}
+
+.map-facade svg {
+  width: 28px;
+  height: 28px;
+  fill: #1f2937;
+}
+
+.map-facade__label {
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.map-facade__note {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  max-width: 24rem;
+}
+
 .contact-actions {
   display: flex;
   flex-wrap: wrap;

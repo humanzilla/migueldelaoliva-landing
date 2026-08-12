@@ -94,14 +94,25 @@
             <p>{{ $contact.addressLine }}, {{ $contact.unit }}</p>
             <span>{{ $contact.city }}, {{ $contact.country }}</span>
           </address>
-          <div class="map-embed">
-            <iframe
-              src="https://www.google.com/maps?q={{ $contact.latitude }},{{ $contact.longitude }}&amp;hl=es&amp;z=16&amp;output=embed"
-              title="Mapa de ubicación: {{ $contact.clinic }}, {{ $contact.building }}"
-              loading="lazy"
-              referrerpolicy="no-referrer-when-downgrade"
-              allowfullscreen>
-            </iframe>
+          {{/* Mapa con carga bajo demanda: nada se pide a Google hasta que alguien
+               toca el botón. El <iframe> vive dentro de un <template>, que el
+               navegador no carga. Sin JavaScript el bloque queda oculto y la
+               ubicación sigue disponible en «Ver en Google Maps», abajo. */}}
+          <div class="map-embed" data-map-facade hidden>
+            <button type="button" class="map-facade" aria-label="Ver mapa del consultorio en {{ $contact.building }}, {{ $contact.city }}. Se carga desde Google Maps.">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2C7.86 2 4.5 5.36 4.5 9.5c0 5.5 6.5 11.5 7 12 .5-.5 7-6.5 7-12C18.5 5.36 15.14 2 12 2zm0 10.25a2.75 2.75 0 1 1 0-5.5 2.75 2.75 0 0 1 0 5.5z"/></svg>
+              <span class="map-facade__label">Ver mapa</span>
+              <span class="map-facade__note">Se carga desde Google Maps al tocarlo.</span>
+            </button>
+            <template>
+              <iframe
+                src="https://www.google.com/maps?q={{ $contact.latitude }},{{ $contact.longitude }}&amp;hl=es&amp;z=16&amp;output=embed"
+                title="Mapa de ubicación: {{ $contact.building }}, {{ $contact.city }}"
+                loading="lazy"
+                referrerpolicy="no-referrer-when-downgrade"
+                allowfullscreen>
+              </iframe>
+            </template>
           </div>
           <div class="contact-actions">
             <a class="btn-contact btn-contact--maps" href="{{ $contact.mapUrl }}" rel="noopener noreferrer" target="_blank">
