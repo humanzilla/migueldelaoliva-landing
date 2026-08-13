@@ -79,15 +79,23 @@ enableGitInfo          = false
   # se movió acá porque la misma etiqueta la usan el héroe, la franja del medio
   # y la barra fija.)
   [params.whatsapp]
+    # La etiqueta de los enlaces que abren WhatsApp de verdad: el del redactor y
+    # el del número, en la sección de contacto.
     label = "Escribime por WhatsApp"
+
+    # La etiqueta de los CTA que llevan al redactor —héroe, franja del medio y
+    # barra fija— y no a WhatsApp. Dice las dos cosas a propósito: quién recibe
+    # el mensaje y que no hay que escribirlo en frío. Un botón que dijera
+    # «Escribime por WhatsApp» y en vez de eso bajara la página estaría
+    # prometiendo una cosa y haciendo otra.
+    composerLabel = "Escribime — te ayudo con el mensaje"
 
     # El mensaje llega escrito para que nadie tenga que redactar en frío la
     # primera frase sobre su salud mental. Lo escribe el visitante, no el
     # doctor: va en primera persona y lo trata de usted. Es una apertura, no una
-    # historia clínica — no da por hecho ningún diagnóstico. Es el texto de los
-    # CTA generales (héroe, franja del medio, barra fija y contacto); el
-    # selector de motivos de la sección de contacto lo reemplaza por el mensaje
-    # de cada opción, en data/motivos.yaml.
+    # historia clínica — no da por hecho ningún diagnóstico. Queda para el enlace
+    # del número en la sección de contacto y para la lista de motivos que se ve
+    # sin JavaScript; los CTA generales ya no abren WhatsApp, llevan al redactor.
     defaultMessage = "Hola doctor, le escribo desde su página web porque me gustaría consultar con usted. ¿Podemos coordinar una cita?"
 
 # Google Analytics 4. El ID vive acá, y no en [params], porque es de donde lo lee

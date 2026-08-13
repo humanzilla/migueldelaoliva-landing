@@ -22,7 +22,10 @@
 {{- $t := $c.plantilla -}}
 {{- $contact := site.Params.contact -}}
 {{- $number := replace $contact.phoneE164 "+" "" -}}
-<div class="contact-composer" x-data="composer" data-composer>
+{{- /* `id` y `tabindex="-1"`: es el destino de todos los CTA de la página, y sin
+       el tabindex el salto mueve la vista pero no el foco — quien navega con
+       teclado seguiría en el botón del héroe, tres pantallas más arriba. */ -}}
+<div class="contact-composer" id="tu-mensaje" tabindex="-1" x-data="composer" data-composer>
   <h3>Tu mensaje, ya escrito</h3>
   <p class="contact-composer__note">Elegí un par de cosas y el mensaje se arma solo. Podés cambiarlo antes de enviarlo.</p>
 

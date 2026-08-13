@@ -23,12 +23,14 @@
         {{- end }}
       </ul>
 
-      {{/* El botón principal abre WhatsApp directamente: antes llevaba a
-           #contacto, donde el enlace a WhatsApp era el segundo botón de la
-           tercera pantalla. El enlace secundario conserva ese camino para quien
-           prefiera ver primero la dirección y los horarios. */}}
+      {{/* El botón principal lleva al redactor, no a un chat vacío. Pasó por
+           las dos versiones: primero apuntaba a #contacto, después abría
+           WhatsApp directo, y con el redactor en pie las dos cosas convivían
+           —cuatro botones verdes hacia el mismo chat en blanco y, al final, la
+           sección que arma el mensaje—. Ahora el camino es uno solo. El enlace
+           secundario sigue siendo para quien quiere ver antes dónde queda. */}}
       <div class="hero-actions">
-        {{ partial "whatsapp-cta.html" (dict "placement" "hero" "variant" "primary") }}
+        {{ partial "whatsapp-cta.html" (dict "placement" "hero" "variant" "primary" "destino" "composer") }}
         <a href="#contacto" class="hero-actions__secondary">Ver dirección y horarios</a>
       </div>
     </div>
@@ -89,7 +91,7 @@
 <section class="cta-band">
   <div class="container">
     <p class="cta-band__text">Si algo de esto te suena, escribime. No hace falta que tengas las palabras exactas.</p>
-    {{ partial "whatsapp-cta.html" (dict "placement" "mid" "variant" "primary") }}
+    {{ partial "whatsapp-cta.html" (dict "placement" "mid" "variant" "primary" "destino" "composer") }}
   </div>
 </section>
 
@@ -184,8 +186,11 @@
 {{/* Barra fija, sólo hasta 768 px. Es un <div> y no un <section> a propósito:
      el revelado por scroll selecciona `main > section`, y una barra fija que
      empieza en opacity 0 sería una barra fija invisible. El pie de página lleva
-     relleno extra en ese ancho para que la barra no le tape el texto. */}}
+     relleno extra en ese ancho para que la barra no le tape el texto.
+
+     Va al redactor, como los demás CTA, y se retira cuando el redactor está en
+     pantalla: ahí ya no lleva a ningún lado que la persona no esté viendo. */}}
 <div class="sticky-cta">
-  {{ partial "whatsapp-cta.html" (dict "placement" "sticky" "variant" "sticky") }}
+  {{ partial "whatsapp-cta.html" (dict "placement" "sticky" "variant" "sticky" "destino" "composer") }}
 </div>
 {{ end }}

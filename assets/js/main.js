@@ -31,7 +31,11 @@
   sections.forEach(section => observer.observe(section));
 })();
 
-// Sticky WhatsApp bar — appears once the hero CTA has scrolled away.
+// Sticky WhatsApp bar — out of the way while another way in is on screen.
+//
+// Two of them: the hero CTA at the top and the composer at the bottom. The bar
+// says the same thing as both and leads to the same place as both, so while
+// either is visible it is a second copy of a button already on screen.
 //
 // Its own IIFE on purpose. The reveal above returns early whenever `js-reveal`
 // is absent — no JS, reduced motion, slow load — and anything nested inside it
@@ -39,28 +43,33 @@
 //
 // The hidden state is CSS gated on `js-sticky`, which head.html adds and takes
 // back if this file never arrives. `sticky-ready` is what tells it the observer
-// is up; it goes on only after the two elements are found, so a page without
-// them ends up with the always-visible bar rather than a hidden one.
+// is up; it goes on only after the targets are found, so a page without them
+// ends up with the always-visible bar rather than a hidden one.
 
 (() => {
   const root = document.documentElement;
   if (!root.classList.contains('js-sticky')) return;
 
   const bar = document.querySelector('.sticky-cta');
-  const heroActions = document.querySelector('.hero-actions');
-  if (!bar || !heroActions) return;
+  // .hero-actions and not the button alone: the secondary "Ver dirección y
+  // horarios" link sits in the same row and the bar covered that too.
+  const targets = ['.hero-actions', '#tu-mensaje']
+    .map(selector => document.querySelector(selector))
+    .filter(Boolean);
+  if (!bar || !targets.length) return;
 
   root.classList.add('sticky-ready');
 
-  // Observing .hero-actions, not the button: the secondary "Ver dirección y
-  // horarios" link sits in the same row and the bar covered that too.
+  const onScreen = new Set();
   const observer = new IntersectionObserver(entries => {
     entries.forEach(entry => {
-      bar.classList.toggle('is-visible', !entry.isIntersecting);
+      if (entry.isIntersecting) onScreen.add(entry.target);
+      else onScreen.delete(entry.target);
     });
+    bar.classList.toggle('is-visible', onScreen.size === 0);
   });
 
-  observer.observe(heroActions);
+  targets.forEach(target => observer.observe(target));
 })();
 
 // Alpine components.
@@ -181,6 +190,12 @@ document.addEventListener('alpine:init', () => {
 // stamps data-cta on each of them, and W1's motive links will come through the
 // same partial — so neither item has any analytics work to do.
 //
+// Two events now, because the funnel has two steps. The general CTAs — hero,
+// mid, sticky — no longer open WhatsApp: they go to the composer, and the
+// conversation starts from there. `composer_open` is where they went, and it
+// carries the same placement, so "which CTA started this" survives the change.
+// Without it those three placements would simply stop reporting.
+//
 // PRIVACY — this is a rule, not a preference. What gets sent is WHERE the button
 // was tapped. What never gets sent is what the visitor wanted to consult about.
 // A motive (autismo, TDAH, consumo…) joined to a GA4 client ID is a health-data
@@ -196,17 +211,19 @@ document.addEventListener('alpine:init', () => {
   const PLACEMENTS = ['hero', 'mid', 'sticky', 'contact', 'motivo'];
 
   document.addEventListener('click', event => {
-    const link = event.target.closest('a[href*="wa.me/"]');
+    const link = event.target.closest('a[href*="wa.me/"], a[data-destino="composer"]');
     if (!link) return;
 
     // gtag is absent when the visitor asked for Do Not Track, when a blocker
     // stopped the load, or when no measurement ID is configured. Nothing to do.
     if (typeof window.gtag !== 'function') return;
 
-    // No transport_type: 'beacon' needed — every WhatsApp link is target="_blank",
-    // so the page is not unloaded and the hit has time to leave.
+    // No transport_type: 'beacon' needed — the WhatsApp links are target="_blank"
+    // and the composer link does not leave the page, so neither unloads it and
+    // the hit has time to leave.
     const cta = link.dataset.cta;
-    window.gtag('event', 'whatsapp_click', {
+    const evento = link.dataset.destino === 'composer' ? 'composer_open' : 'whatsapp_click';
+    window.gtag('event', evento, {
       placement: PLACEMENTS.includes(cta) ? cta : 'other',
     });
   });

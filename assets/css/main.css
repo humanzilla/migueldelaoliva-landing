@@ -513,10 +513,14 @@ nav {
 
 /* Selector de motivos. Hereda el fondo, el relleno y el radio de la tarjeta
    «Agendamiento en línea» que ocupaba esta celda. */
+/* `scroll-margin-top` porque es el destino de los CTA de toda la página: sin
+   eso el salto deja el título «Tu mensaje, ya escrito» pegado al borde de
+   arriba y no se ve que empieza una tarjeta. */
 .contact-composer {
   background: #f9fafb;
   padding: 2.5rem;
   border-radius: 8px;
+  scroll-margin-top: 1.5rem;
 }
 
 .contact-composer h3 {
@@ -747,12 +751,13 @@ footer p {
     display: none;
   }
 
-  /* El relleno inferior va con el alto de la barra fija (72 px), igual que el
-     del pie: así, cuando el final del héroe queda al ras del borde inferior de
-     la pantalla, lo que la barra tapa es aire y no el botón. Es el piso que
-     protege el camino sin JavaScript, donde la barra está siempre visible. */
+  /* El relleno inferior va con el alto de la barra fija (86 px a 375 px, donde
+     la etiqueta ocupa dos líneas), igual que el del pie: así, cuando el final
+     del héroe queda al ras del borde inferior de la pantalla, lo que la barra
+     tapa es aire y no el botón. Es el piso que protege el camino sin
+     JavaScript, donde la barra está siempre visible. */
   .hero {
-    padding: 3rem 0 6rem;
+    padding: 3rem 0 7rem;
   }
 
   .story,
@@ -813,9 +818,10 @@ footer p {
   }
 
   /* La barra fija se monta sobre el pie de página; este relleno le devuelve el
-     sitio que le quita. Va con el alto de la barra: si cambia uno, cambia el otro. */
+     sitio que le quita. Va con el alto de la barra: si cambia uno, cambia el
+     otro. Subió de 6rem a 7rem cuando la etiqueta pasó a dos líneas. */
   footer {
-    padding-bottom: 6rem;
+    padding-bottom: 7rem;
   }
 }
 

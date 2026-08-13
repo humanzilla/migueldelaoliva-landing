@@ -36,6 +36,7 @@ the doctor first, not effort.
 | W22 — Legibility: hairline body text, over-tight titles, sub-12 px labels | 2 | ⬜ Not started |
 | W23 — The stretched composer card and the left-pinned hero | 3 | ⬜ Not started |
 | W12b — Voice and tone sweep across all copy | 4 | ⬜ Not started |
+| W26 — One way in: every CTA leads to the composer | 1 | ✅ Done — 2026-08-12 |
 | W24 — Two-column hero | — | ⏸️ Blocked — needs an owner decision |
 | W25 — Verify on a real phone over a real connection | — | ⏸️ Blocked — needs hardware |
 
@@ -128,6 +129,11 @@ document.querySelectorAll('main > section').forEach(s => s.classList.add('is-rev
 
 ## W18 — The sticky WhatsApp bar collides with the hero CTA on mobile ✅ DONE
 
+> **W26 moved these numbers on the same day.** The general CTAs now carry a longer label
+> that wraps to two lines at 375 px, so the bar is 86 px tall, not 72, and `.hero` and
+> `footer` padding went to 7rem. The mechanism below is unchanged; the measurements in
+> W26's Outcome are the current ones.
+
 ### Outcome — 2026-08-12
 
 The bar now stays off screen while `.hero-actions` is in view and slides up once it leaves.
@@ -177,6 +183,11 @@ spacing belongs to **W23**. Nothing here made that case worse — it is what the
 today — and the padding floor removes the overlap everywhere else. **W23 should re-measure
 the no-JS hero at 375×812 after it reorders the hero and the social links**; if the actions
 row lands above y 740 there, the residual disappears with it.
+
+**Update, same day, after W26:** that residual is now 60 px, not 17. The hero button carries
+the two-line label and runs 696–786; the bar starts at 726. The mis-tap it invites is
+harmless — both the button and the bar go to `#tu-mensaje` now — but the overlap is more
+visible, and it is one more reason for W23 to check that geometry.
 
 **Highest priority item in this round.** It is the first thing a phone visitor sees and it
 looks broken.
@@ -579,7 +590,9 @@ introduce a two-column hero — that is W24.
 - 1440 px and 375 px: the hero reads portrait → heading → subheading → intro → CTA → social,
   and the CTA is visually before the social links.
 - 375 px: the CTA sits higher than it did. Record the measured y-position before and after —
-  this is the number W18 also cares about.
+  this is the number W18 also cares about. **Since W26 the hero button is two lines at 375 px
+  (696–786) and the always-visible no-JS bar starts at 726.** Moving the social links below
+  the CTA is worth roughly the 60 px that would clear that overlap; check whether it does.
 - The larger portrait causes no layout shift: check that the rendered `<img>` box matches its
   `width`/`height` attributes.
 - The story and services sections are untouched.
@@ -707,6 +720,95 @@ W18 and W20 both change how the page behaves under a thumb specifically.
 
 ---
 
+## W26 — One way in: every CTA leads to the composer ✅ DONE
+
+### Context
+
+Raised by the owner right after W18 landed, looking at the contact section: *"«Tu mensaje, ya
+escrito» and the contact by WhatsApp seem to be competing for attention. There must be one
+way to contact."*
+
+He is describing what the page had actually become. W1 and W3 added the composer without
+retiring anything, so five entry points shipped at once — hero, mid band, sticky bar and the
+contact number all opened the **same empty chat** with the same generic `defaultMessage`,
+while the composer sitting next to the last of them existed precisely because that empty chat
+is the thing people stall on. Four shortcuts past the one feature built to help.
+
+### What landed
+
+The general CTAs no longer open WhatsApp. They go to the composer, and WhatsApp opens from
+there with the message already written.
+
+| Placement | Before | After |
+| --- | --- | --- |
+| Hero | `wa.me` + `defaultMessage` | `#tu-mensaje` |
+| Mid band | `wa.me` + `defaultMessage` | `#tu-mensaje` |
+| Sticky bar | `wa.me` + `defaultMessage` | `#tu-mensaje` |
+| Contact number | `wa.me` + `defaultMessage` | unchanged — **owner's call**, see below |
+| Composer (7 motives, no-JS) | `wa.me` + per-motive message | unchanged |
+| Composer (Alpine) | `wa.me` + built message | unchanged |
+
+- **`whatsapp-cta.html` grew a `destino` parameter** (`whatsapp` | `composer`). It is still
+  the only place a WhatsApp URL is built. With `composer` the link is internal: `#tu-mensaje`,
+  no `target="_blank"`, no `rel` — both describe a new tab that does not open — and a
+  `data-destino="composer"` hook for analytics. The WhatsApp glyph stays on both: it names
+  the channel the conversation will leave through.
+- **Copy, `hugo.toml`.** New `params.whatsapp.composerLabel = "Escribime — te ayudo con el
+  mensaje"`, chosen by the owner from three options. `label` stays "Escribime por WhatsApp"
+  on the two links that really do open WhatsApp. A button that said "Escribime por WhatsApp"
+  and instead scrolled the page would promise one thing and do another. `defaultMessage` now
+  serves only the contact number and the no-JS motive list; its comment says so.
+- **The composer is now an anchor**: `id="tu-mensaje"`, `tabindex="-1"` so the jump moves the
+  focus and not just the viewport, and `scroll-margin-top: 1.5rem` so its heading is not
+  flush against the top edge.
+- **The sticky bar now steps aside for the composer too.** W18's observer watched
+  `.hero-actions`; it watches `#tu-mensaje` as well and shows the bar only when neither is on
+  screen. While the composer is visible the bar is a second copy of a button already there —
+  which is the complaint this item came from.
+- **Analytics keeps the funnel.** `hero`, `mid` and `sticky` would otherwise have stopped
+  reporting entirely, since they are no longer `wa.me` links. They now emit `composer_open`
+  with the same placement; `whatsapp_click` still fires for the contact number and the
+  composer. The W15 allowlist is untouched and no motive is sent — verified by stubbing
+  `gtag` and clicking all four: `composer_open/hero`, `composer_open/mid`,
+  `composer_open/sticky`, `whatsapp_click/contact`.
+- **Owner's decision, recorded because it is a deliberate exception:** the contact-block
+  number stays a direct WhatsApp link. Asked whether to make it plain text, point it at the
+  composer, or leave it, he chose to leave it. So one shortcut past the composer survives, by
+  choice, in the place where someone is already reading the address and hours.
+
+### Knock-on: the label wraps, so the bar is taller
+
+At 375 px the new label is two lines. Measured: the sticky bar went **72 px → 86 px** and the
+hero button **61 px → 90 px**. The bar's height is paired with two paddings and both moved
+with it — `.hero { padding-bottom }` and `footer { padding-bottom }`, 6rem → 7rem (112 px,
+26 px of clearance over the bar, matching what W18 left). The owner picked the label from a
+preview that showed the two-line wrap, so the wrap is accepted, not overlooked.
+
+### Verified
+
+Playwright MCP, headless Chromium, built site on `:1399`:
+
+| Check | Result |
+| --- | --- |
+| Every `data-cta` in the built HTML | hero/mid/sticky → `#tu-mensaje`, no `target`; contact + 7 motives → `wa.me`. |
+| 375×812, tap the hero CTA | Scrolls to the composer, `location.hash = #tu-mensaje`, `document.activeElement` is `tu-mensaje`, composer 24 px from the top. |
+| Sticky bar, 375×812 | Hidden at the top, visible mid-page (86 px tall), hidden again at the bottom with the composer on screen. |
+| Composer still works | Chip click builds the preview and the `wa.me` href; the no-JS fallback is hidden once Alpine boots. |
+| Analytics | The four events above, placement only. |
+| No JavaScript, 375×812 | Hero CTA is `#tu-mensaje`; fragment navigation lands the composer 24 px from the top with its 7 motive links; the bar is visible with `transform: none`; the footer text clears it (700 vs 726). |
+| 1440 px | Hero and mid buttons 405×61, one line. Sticky bar `display: none`. |
+| `hugo --gc --minify` | Clean. |
+
+### Left undone
+
+The no-JS overlap at scroll 0 got bigger, not smaller: 17 px → 60 px, because the hero button
+is two lines now. Both the button and the bar lead to `#tu-mensaje`, so a mis-tap costs
+nothing, but it looks worse than it did. Fixing it means moving hero content up, which is
+**W23** — and W23 already moves the social links below the CTA, which is exactly the ~70 px
+that would clear it. Recorded at the end of W18's Outcome too.
+
+---
+
 # Execution plan
 
 ## The constraint
@@ -719,8 +821,9 @@ this round's parallelism, the same way `layouts/index.html` was last round's.
 | `assets/css/main.css` | W18, W19, W20, W21, W22, W23 |
 | `layouts/index.html` | W23, W12b |
 | `layouts/partials/header.html` | W19, W12b |
-| `assets/js/main.js` | W18 only |
+| `assets/js/main.js` | W18, W26 |
 | `layouts/partials/head.html` | W18 only — the `js-sticky` opt-in script |
+| `layouts/partials/whatsapp-cta.html` | W26 only — the `destino` parameter |
 | `hugo.toml` | W12b only |
 
 Running two sessions concurrently against an 810-line stylesheet produces conflicts that cost
