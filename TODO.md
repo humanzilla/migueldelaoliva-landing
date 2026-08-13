@@ -31,7 +31,7 @@ the doctor first, not effort.
 | --- | --- | --- |
 | W18 — Sticky bar collides with the hero CTA on mobile | 1 | ✅ Done — 2026-08-12 |
 | W19 — The mobile header is 64 px of nothing | 2 | ✅ Done — 2026-08-13 |
-| W20 — Touch targets below 44×44 | 2 | ⬜ Not started |
+| W20 — Touch targets below 44×44 | 2 | ✅ Done — 2026-08-13 |
 | W21 — Focus states are effectively unstyled | 2 | ⬜ Not started |
 | W22 — Legibility: hairline body text, over-tight titles, sub-12 px labels | 2 | ⬜ Not started |
 | W23 — The stretched composer card and the left-pinned hero | 3 | ⬜ Not started |
@@ -382,7 +382,96 @@ claude "Read TODO.md and implement work item W19: put the doctor's name in the s
 
 ---
 
-## W20 — Touch targets below 44×44
+## W20 — Touch targets below 44×44 ✅ DONE
+
+### Outcome — 2026-08-13
+
+Every interactive element on the page now measures ≥44×44 px, at 375 px and at 1440 px, with
+the composer expanded and with JavaScript disabled. **There are no documented exceptions —
+the list is empty.** Only file changed: `assets/css/main.css`.
+
+**Three targets the item's table did not list turned up in the sweep** and are fixed here
+too, since the Verify says *every* `<a>`, `<button>` and `<input>`:
+
+| Element | Selector | Before | After | Change |
+| --- | --- | --- | --- | --- |
+| Composer chips | `.chip` | 34.8 | **44.39** | `padding: 0.5rem 0.85rem` → `0.8rem 0.95rem` |
+| Contact buttons | `.btn-contact` | 40.8 | **45.6** | `0.65rem 1.1rem` → `0.8rem 1.15rem` |
+| Nav pills | `.nav-links a` | 31.2 | **45.59** | `0.35rem 1rem` → `0.8rem 1rem` |
+| Social links | `.social-links a` | 24 | **44.8** | added `padding: 0.65rem 0` |
+| **Header name** | `.logo` | 38.4 | **44.77** | added `padding: 0.2rem 0` — handed over by W19 |
+| **Hero secondary link** | `.hero-actions__secondary` | 25.6 | **44.8** | added `padding: 0.6rem 0` |
+| **No-JS motive links** | `.btn-contact--motivo` | 41.5 | **46.3** | inherited from `.btn-contact` |
+
+Padding only, as instructed. No font-size, border-radius or colour moved anywhere.
+
+- **`.composer-input` was measured and left alone.** It is the third thing the sweep turned
+  up and the only one that did *not* need fixing: it computes to **47.09 px** and always did
+  — it never appears in a static snapshot because it lives in step 3 of the composer, which
+  is why no review had measured it. An edit to it was written and then reverted once measured.
+- **`.composer__cta` (47.19) and `.sticky-cta__link` (bar 86.2 px) are unchanged**, confirmed
+  rather than assumed: both declare their own `0.85rem 1.1rem`, which is still larger than
+  `.btn-contact`'s new `0.8rem`, and both rules sit later in the file. The sticky bar's height
+  did not move, so the `footer`/`hero` padding pairing from W18 and W26 stands untouched.
+- **Separation**: `.chips { gap }` 0.4rem → 0.5rem, as the item suggested. An all-pairs sweep
+  of every visible target — 24 at 375 px, 26 at 1440 px, composer expanded — found **no pair
+  closer than 8 px** at 320, 360, 375 or 1440.
+
+**Deviation — two `gap`s were split into row/column rather than left alone.** Adding vertical
+padding to a link that had none also adds visible air, and on two flex rows that air landed on
+top of an existing gap. `.hero-actions` goes `1.5rem` → `0.9rem 1.5rem` and `.social-links`
+goes `1rem` → `0.5rem 1rem`; the column values, which are what desktop uses, are unchanged.
+The net effect is that the spacing *looks* the same as before while part of it is now
+touchable. `.social-links { padding-bottom }` went `4rem` → `3.4rem` for the same reason — the
+0.65rem each link now carries below its icon was previously the container's job. **W23 still
+owns that number**, per its own instructions; this only changes the value it starts from.
+
+**Deviation — the mobile header padding moved again, to hold 64 px.** W19 set `0.6rem` as the
+figure that would absorb a tappable logo and that is exactly what it took: `header { padding:
+0.8rem 0 }` → `0.6rem 0`, so 9.6 × 2 + 44.8 = **64.0 px**, the same height for the third
+round running. W19's instruction not to silently undo the 64 px is honoured.
+
+**Desktop header grew 6.4 px, 102.4 → 108.8**, and the reason is worth recording because it
+is not the obvious one. `.logo` is a flex item of `nav`, so it is blockified and its padding
+raises the header. `.nav-links a` is an inline `<a>` inside an `<li>`, which is *not* a flex
+item, so its new padding overflows the line box without growing anything — the pills are
+45.59 px to a finger and to `getBoundingClientRect`, but they cost the header nothing. Hit
+testing includes the padding box, so the target is real. The 6.4 px is entirely the logo. A
+screenshot at 1440 confirms the pills render fully inside the header with no clipping.
+
+**Cost on the mobile hero, and it is the one the item warned about.** W23 has not run yet, so
+the social links are still above the CTA and making them 44 px tall pushes it down:
+
+| Measurement, 375 px | Before | After |
+| --- | --- | --- |
+| `.social-links` block | 128 | 152 |
+| Hero CTA top edge | 696 | **719.9** |
+| `.hero-actions` block | 139.2 | 148.8 |
+| Composer card, collapsed | 372.8 | 416 |
+| Composer card, all steps open | 846.3 | 910.3 |
+
+Chips still wrap to **four rows** at 375 px, not five — the wider chips repack identically.
+
+**The no-JS overlap at scroll 0 grew again: 60 px → 83.7 px** (bar top 725.8, CTA bottom
+809.5). W18 recorded it at 17 px, W26 took it to 60, this takes it to 84. It is still the same
+harmless mis-tap — both the button and the bar lead to `#su-mensaje` — and it is still **W23's
+to clear**, which is exactly what moving the social links below the CTA is worth. No new item
+raised: W18, W26 and W23 all already carry this handoff, and this is the third entry on it.
+
+Verified in headless Chromium (Playwright MCP) against the built site on `:1402`:
+
+| Check | Result |
+| --- | --- |
+| 375×812, composer expanded | 24 visible targets, **0 under 44×44**. No horizontal overflow. |
+| 1440×900 | 26 visible targets, **0 under 44×44**. No overflow. |
+| 769×800 | 0 under 44×44. Logo ends x 274.8, first pill starts x 378.6 — no overlap. |
+| Adjacent-target separation | All-pairs sweep at 320/360/375/1440: no pair under 8 px. |
+| Scripting disabled (`**/js/**` aborted) | 0 under 44×44. Seven motive links at 46.3 px, one line each, list 372.2 px. `js-reveal`/`js-sticky` dropped after the 2 s fallback, every section at opacity 1, bar `transform: none` — W8 and W18 intact. |
+| Sticky bar with JS | Hidden at the top, visible at scroll 2200 (86.2 px, unchanged), hidden again back at the top. W18's observer unaffected. |
+| `prefers-reduced-motion: reduce` | All sections visible, 0 under 44×44, chip `transition-duration` 1e-05s. |
+| 320 / 360 px | Only `.service-item` overflows — **pre-existing W27, unchanged**. Nothing new escapes. |
+| Screenshots | Header at 1440 and chips at 375 look like they were always this size; nothing clipped. |
+| `hugo --gc --minify` | Clean. |
 
 ### Context
 
@@ -645,9 +734,13 @@ introduce a two-column hero — that is W24.
 - 1440 px and 375 px: the hero reads portrait → heading → subheading → intro → CTA → social,
   and the CTA is visually before the social links.
 - 375 px: the CTA sits higher than it did. Record the measured y-position before and after —
-  this is the number W18 also cares about. **Since W26 the hero button is two lines at 375 px
-  (696–786) and the always-visible no-JS bar starts at 726.** Moving the social links below
-  the CTA is worth roughly the 60 px that would clear that overlap; check whether it does.
+  this is the number W18 also cares about. ~~**Since W26 the hero button is two lines at 375 px
+  (696–786) and the always-visible no-JS bar starts at 726.**~~ **W20 moved these on
+  2026-08-13**: 44 px social links pushed the hero button down to **719.9–809.5**, the bar
+  still starts at 725.8, so the no-JS overlap is now **83.7 px**. The social block is 152 px
+  tall and carries `padding-bottom: 3.4rem` (W20 traded 0.6rem of it for the padding each link
+  now has) — moving it below the CTA is worth more than enough to clear the overlap. Check
+  whether it does, and re-decide that 3.4rem once the list is in its new place.
 - The larger portrait causes no layout shift: check that the rendered `<img>` box matches its
   `width`/`height` attributes.
 - The story and services sections are untouched.
