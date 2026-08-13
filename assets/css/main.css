@@ -801,8 +801,12 @@ footer p {
     font-size: 2rem;
   }
 
+  /* «.services-grid» entra aquí con las otras dos. Su suelo de 350 px no cedía a
+     ningún ancho, así que por debajo de 390 px las tarjetas se salían de la
+     pantalla. El «gap» es el mismo 2rem que ya tenía. */
   .story-grid,
-  .contact-grid {
+  .contact-grid,
+  .services-grid {
     grid-template-columns: 1fr;
     gap: 2rem;
   }

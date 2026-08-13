@@ -36,7 +36,7 @@ the doctor first, not effort.
 | W22 — Legibility: hairline body text, over-tight titles, sub-12 px labels | 2 | ✅ Done — 2026-08-13 |
 | W23 — The stretched composer card and the left-pinned hero | 3 | ⬜ Not started |
 | W12b — Voice and tone sweep across all copy | 4 | ⬜ Not started |
-| W27 — `.services-grid` overflows below 390 px | 2 | ⬜ Not started |
+| W27 — `.services-grid` overflows below 390 px | 2 | ✅ Done — 2026-08-13 |
 | W28 — Text on the WhatsApp green fails contrast | 2 | ⬜ Not started |
 | W26 — One way in: every CTA leads to the composer | 1 | ✅ Done — 2026-08-12 |
 | W24 — Two-column hero | — | ⏸️ Blocked — needs an owner decision |
@@ -898,7 +898,57 @@ claude "Read TODO.md and implement work item W23: add align-items:start to .cont
 
 ---
 
-## W27 — `.services-grid` overflows the viewport below 390 px
+## W27 — `.services-grid` overflows the viewport below 390 px ✅ DONE
+
+### Outcome — 2026-08-13
+
+`.services-grid` joined the `.story-grid, .contact-grid` rule in the existing 768 px block —
+the item's preferred fix, and the smaller of the two it offered. Only file changed:
+`assets/css/main.css` (+7 −2, four of which are a comment).
+
+**The `gap` question the item raised answers itself: there is nothing to reconcile.**
+`.services-grid`'s base rule already declares `gap: 2rem`, which is exactly what the
+neighbouring rule sets, so joining that selector list changes `grid-template-columns` and
+nothing else. Measured stacked gap is 32 px at every width below 769 px — the same 2rem it
+had before.
+
+| Viewport | Before | After |
+| --- | --- | --- |
+| 320 px | **50 px of horizontal overflow**, items 350 px wide ending at x 370 | **0 px**, items 280 px, x 20 → 300 |
+| 360 px | **10 px of overflow** | **0 px**, items 320 px, x 20 → 340 |
+| 375 px | No document overflow, but items ran to x 370 — 5 px from the screen edge | **0 px**, items 335 px, x 20 → 355, flush with the container gutter |
+| 390 / 414 / 768 px | — | 0 px, one column, inside the gutter |
+| 769 / 1024 / 1440 px | — | **Unchanged.** 1440 px: 2 columns, 494 px each, x 210 → 1230 |
+
+At 375 px this fixes the second, quieter half of the defect too: the cards used to sit 15 px
+past the container gutter while every other section respected 20 px, which is why no overflow
+check ever flagged them. They now line up with everything else.
+
+**Desktop is structurally untouched** — the rule lives inside `@media (max-width: 768px)`.
+The 769 px column count is 1 both before and after, and that is the base `auto-fit` rule
+doing its job, not this change: two 350 px tracks plus the 32 px gap need 732 px and the
+container offers 689 px there.
+
+**Correction to this item's Context, for whoever reads it next:** it says "the five
+`data/services.yaml` entries". There are **six** — `Inclusión` was added and the count in the
+item was never updated. Nothing depends on the number; recorded so it is not re-derived.
+
+Verified in headless Chromium (Playwright MCP) against the built site on `:1405`:
+
+| Check | Result |
+| --- | --- |
+| 320 / 360 / 375 / 390 / 414 / 768 / 769 / 1024 / 1440 px | `scrollWidth === innerWidth` at **every** width. All six `.service-item`s inside the gutter at each. |
+| Full overflow sweep at 320 px | **No element overflows** — re-run rather than assumed, per the item. The list is now empty; it previously returned `.service-item` and its children. |
+| Stacked gap | 32 px (2rem) at every width ≤768 px. |
+| 1440 px | 2 columns, 494 px each — same column count and widths as before. |
+| Screenshot, 320 px | Cards stack full-width inside the 20 px gutter, dividers and rhythm unchanged. |
+| Scripting disabled (`**/js/**` aborted), 320 px | 1 column, 280 px, no overflow, every section visible. W8 intact. |
+| `prefers-reduced-motion: reduce`, 320 px | Same, all sections visible. |
+| Touch targets at 320 px | 19 visible targets, **0 under 44×44** — W20 holds at the width it could not previously clear. |
+| W22 regression guards | Story weight 400, title tracking normal, label 12 px, `.mission-text` 680 px — all intact. |
+| `hugo --gc --minify` | Clean. |
+
+### Context
 
 **Found while verifying W19 at 320 px. Pre-existing — nothing in W19 caused it, and it is
 not a regression from any round-2 item.** Raised here rather than fixed there, per the
@@ -1358,9 +1408,11 @@ Credit where the site is already right, so nobody "fixes" it:
   `<span>`s inside buttons finds **34** combinations, and **three fail** — all text on the
   WhatsApp green. Now tracked as **W28**. Use the 34-combination sweep as the baseline; the
   18-style figure understates what is on the page.
-- **No horizontal overflow and no element escaping the viewport at 375 px** — true, and true
+- ~~**No horizontal overflow and no element escaping the viewport at 375 px** — true, and true
   *only* at 375 px. `.services-grid` overflows at 360 px and below; found while verifying
-  W19 and now tracked as **W27**.
+  W19 and now tracked as **W27**.~~ **Fixed 2026-08-13 by W27.** Now true at 320, 360, 375,
+  390, 414 and 768 px as well. Check 320 px, not 375 px, when testing overflow on this site —
+  375 px is the width that hid this for two rounds.
 - **`prefers-reduced-motion` is handled properly**, at two levels — the reveal never arms and
   a global block zeroes every transition.
 - **The no-JS composer fallback genuinely works**, and W17 verified it by aborting the Alpine
