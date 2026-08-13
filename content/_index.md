@@ -8,7 +8,7 @@ acompaño a personas y familias en momentos difíciles. Pero lo que más marcó
 mi forma de ejercer no fue un aula, ni un título.
 
 Fue desde la experiencia y el estudio de las neurodivergencias,
-dejé de ver los casos desde fuera. Empecé a vivir las preguntas,
+dejé de ver las historias desde fuera. Empecé a vivir las preguntas,
 los miedos y las búsquedas que tantas familias conocen de cerca.
 Aprendí a mirar más allá de los síntomas, y a escuchar lo que no siempre
 se dice con palabras.

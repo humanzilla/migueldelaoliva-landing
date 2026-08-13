@@ -35,12 +35,16 @@ the doctor first, not effort.
 | W21 — Focus states are effectively unstyled | 2 | ✅ Done — 2026-08-13 |
 | W22 — Legibility: hairline body text, over-tight titles, sub-12 px labels | 2 | ✅ Done — 2026-08-13 |
 | W23 — The stretched composer card and the left-pinned hero | 3 | ✅ Done — 2026-08-13 |
-| W12b — Voice and tone sweep across all copy | 4 | ⬜ Not started |
+| W12b — Voice and tone sweep across all copy | 4 | ✅ Done — 2026-08-13 |
 | W27 — `.services-grid` overflows below 390 px | 2 | ✅ Done — 2026-08-13 |
 | W28 — Text on the WhatsApp green fails contrast | 2 | ✅ Done — 2026-08-13 |
 | W26 — One way in: every CTA leads to the composer | 1 | ✅ Done — 2026-08-12 |
 | W24 — Two-column hero | — | ⏸️ Blocked — needs an owner decision |
 | W25 — Verify on a real phone over a real connection | — | ⏸️ Blocked — needs hardware |
+| W29 — «más de 15 años» is an unverified claim | — | ⏸️ Blocked — needs the doctor |
+| W30 — Title case in the machine-facing strings | — | ⏸️ Blocked — needs the doctor |
+| W31 — «No tiene que hacerlo solo» argues against the site's thesis | — | ⏸️ Blocked — needs the doctor |
+| W32 — A broken sentence in the doctor's own narrative | — | ⏸️ Blocked — needs the doctor |
 
 Legend: ⬜ Not started · 🟡 In progress · ✅ Done · ⏸️ Blocked
 
@@ -1272,12 +1276,117 @@ green is doing real work as a channel signal, so "just make it grey" is not an a
 
 ---
 
-## W12b — Voice and tone sweep across all copy
+## W12b — Voice and tone sweep across all copy ✅ DONE
 
-**Carried over from round 1, still unfinished. Run LAST** — it edits the final text of
-everything the other items produce.
+### Outcome — 2026-08-13
+
+The sweep ran across all fourteen files that hold user-facing text. **Six strings changed;
+four questions were raised for the doctor rather than answered by a session.** Files changed:
+`content/_index.md`, `data/services.yaml`, `data/motivos.yaml`, `layouts/index.html`,
+`layouts/partials/head.html`, `hugo.toml`.
+
+**The person was already right everywhere.** A mechanical sweep for `vos`/`tú` forms across
+`content/`, `data/`, `layouts/` and `hugo.toml` — the verb table in `CLAUDE.md` plus the
+general `-ás`/`-és`/`-ís` pattern plus bare `tu`/`tus`/`te`/`ti` — returns **zero hits** in
+user-facing text. The 2026-08-12 conversion held. Likewise zero hits for exclamation marks,
+superlatives, urgency framing, cure/disease framing for autism, moral framing of addiction,
+puzzle imagery, and `paciente` as a label. That is the bulk of what this item exists to catch,
+and it was already clean — so what follows is small on purpose.
+
+#### What changed
+
+| # | Where | Before | After | Rule |
+| --- | --- | --- | --- | --- |
+| 1 | `content/_index.md:11` | "dejé de ver **los casos** desde fuera" | "dejé de ver **las historias** desde fuera" | Register table: `caso` → `historia, situación` |
+| 2 | `data/services.yaml:30` | "no basta con **tratar individuos**" | "no basta con **acompañar a cada persona**" | Register table: `tratar (a la persona)` → `acompañar`; `persona` not a collective noun |
+| 3 | `layouts/index.html:34` | `aria-label="Instagram"` | `aria-label="Instagram del Dr. Miguel de la Oliva. Se abre en una pestaña nueva."` | Micro-copy: labels say where they go; not a slug |
+| 4 | `layouts/index.html:147` | `title="Mapa de ubicación: …"` | `title="Mapa del consultorio en …."` | Micro-copy: iframe titles read as sentences |
+| 5 | `layouts/partials/head.html:25` | `og:image:alt` = `params.author` | `og:image:alt` = `params.hero.photoAlt` | Micro-copy: alt describes the person, not a signature |
+| 6 | `hugo.toml:100` | "Hola doctor, le escribo…" | "**Hola, doctor.** Le escribo…" | Vocative comma; matches `plantilla.sinNombre` |
+
+- **#1 and #2 are the only two register hits on the whole site**, and both are the same
+  defect in different words — the clinical distance `CLAUDE.md` fences off. #1 is in the
+  doctor's own narrative and is the sentence describing what he stopped doing, so removing
+  "casos" from it strengthens the point rather than softening it. Meaning is unchanged in
+  both; no claim was added or removed.
+- **#3 was four links whose accessible name was one word.** The visible `<span>` already said
+  "Instagram"; the `aria-label` said "Instagram" too, so it overrode the visible text with an
+  identical string and added nothing. It now names whose profile it is and that the link
+  leaves the site — which none of the four said before, and all four open in a new tab.
+  **WCAG 2.5.3 (label in name) verified rather than assumed**: every accessible name starts
+  with its visible span text. The SVG carries `aria-hidden="true"`, so its `<title>` is not
+  part of the name.
+- **#5 is the one an automated checker would have missed.** `og:image:alt` is read aloud when
+  the card is shared, and it was set to `params.author` — a name, which is a signature, not a
+  description of what is in the photograph. The correct string already existed one file away:
+  `hero.photoAlt` describes the same image, and is deliberately worded to avoid claiming a
+  consultorio the studio portrait does not show.
+- **#6 makes the site's two greetings the same.** `defaultMessage` (the contact-number link)
+  opened with "Hola doctor," — no vocative comma, which is a punctuation defect in Spanish and
+  `CLAUDE.md` calls accents and punctuation mandatory — while `plantilla.sinNombre` (the
+  composer and the no-JS motive list) opened with "Hola, doctor." Same message, same reader,
+  two greetings. Both now read "Hola, doctor." **Checked through the URL encoder**, which is
+  where this file's punctuation usually breaks: the comma survives as `%2C`, `¿` as `%C2%BF`,
+  and the accents in `página`/`gustaría` as `%C3%A1`/`%C3%AD`.
+
+**Deviation — one code comment was edited, and it is not user-facing.** `data/motivos.yaml:9`
+read *"Si cambiás una frase acá"* — the only `vos` form left in the repo, sitting eight lines
+above the comment block that explains the `usted` rule to the next session. It is now
+impersonal: *"Si se cambia una frase acá"*. Strictly outside "user-facing text", changed
+anyway because a stray voseo inside the file that documents the no-voseo rule is a trap, and
+it costs nothing. **No other code comment was touched** — the Spanish developer comments
+throughout `layouts/` are addressed to whoever maintains the site, not to a visitor, and
+rewriting them is not this item's job.
+
+#### What was deliberately not changed
+
+- **The two interface imperatives.** `Elige un par de cosas` (`composer.html`) and
+  `Baja a «Su mensaje, ya escrito»` (`whatsapp-cta.html`) are the two sanctioned `tú` strings
+  and both are still exactly as `CLAUDE.md` fences them. The list did not grow.
+- **The composer messages address the doctor as `usted`.** Correct and deliberate — the
+  visitor is writing to him. The item's own warning; not touched.
+- **`no se preocupe`** — no negative-command "correction" was made anywhere.
+- **`data/credentials.yaml` and `contact.specialties` title case** — formal qualification
+  names and a verified fact. Left, per the item, and folded into **W30**.
+- **`hero.photoAlt`** reads as a sentence and describes the person; nothing to do.
+- **The footer, the privacy line, every `contact-item` label, the map facade's `aria-label`,
+  every heading, and all of `composer.html`** were read line by line and are already correct.
+
+#### Raised rather than fixed — four items, all needing the doctor
+
+Per the item's own instruction for the first, and the completion protocol for the rest:
+**W29** (the "más de 15 años" claim), **W30** (title case in the machine-facing strings, plus
+the missing accent in "Angel"), **W31** ("No tiene que hacerlo solo"), **W32** (a broken
+sentence in `content/_index.md`). W29 and W31 were named as open by this item; W30 and W32
+are new. None was silently fixed and none was silently dropped.
+
+Verified in headless Chromium (Playwright MCP) against the built site on `:1408` — 1399–1407
+were avoided per the note about parallel sessions:
+
+| Check | Result |
+| --- | --- |
+| Mechanical sweep, all user-facing text | **0 hits** for voseo/tuteo, `-ás/-és/-ís`, `tu/tus/te/ti`, `!`, superlatives, urgency, cure framing, `paciente`, puzzle imagery. |
+| Every accessible name on the page | 28 names dumped and read; **all read as sentences**, none as a slug. The four social links and the iframe title were the only ones that did not, and both are fixed. |
+| WCAG 2.5.3, social links | All four accessible names start with their visible text. SVG `aria-hidden="true"`. |
+| Map facade → iframe | Title reads "Mapa del consultorio en Edificio Las Palmas Golf View, Santa Cruz de la Sierra."; focus still moves to the iframe on load — W14's facade and its focus handoff intact. |
+| Composer flow, motive → persona → name | Preview and built `wa.me` href both correct with the typed name. **W17 check 6 re-run and passing.** |
+| Both WhatsApp message paths | Composer: "Hola, doctor. Soy Ana. …"; contact number: "Hola, doctor. Le escribo…". Same greeting, as intended. |
+| URL encoding | `%2C`, `%C2%BF`, `%C3%A1`, `%C3%AD` all correct — accents and `¿` survive the query string. |
+| Server-rendered no-JS layer | 7 motive links present with correct labels and messages; 9 `wa.me` URLs total (7 motives + contact number + the composer's JSON `base`). |
+| `<label for="composer-nombre">` | Survives `--minify` (unquoted attribute), so the name input keeps its accessible name. |
+| `hugo --gc --minify` | Clean. |
+
+**Not re-run, and saying so rather than implying otherwise:** `prefers-reduced-motion`, the
+scripting-disabled load, and the third-party network log. This item changed no CSS and no
+JavaScript — the diff is six strings and two comments — so none of those behaviours can have
+moved. W23's Outcome, one commit earlier, is the last run of all three and they passed there.
+The full verification pass the execution plan calls for after W12b is still worth doing as its
+own pass; it is not claimed here.
 
 ### Context
+
+**Carried over from round 1. It ran LAST, as it was always meant to** — it edits the final
+text of everything the other items produce.
 
 `CLAUDE.md` is the guide (round 1's W12a wrote it). This item applies it. Running it before
 W18–W23 means running it twice, since W19 adds a header string and W23 reorders the hero.
@@ -1414,6 +1523,123 @@ mid-ranger over mobile data in Santa Cruz, which is the actual delivery context.
 
 Blocked on hardware and a deployed URL, not on effort. Worth doing after W18–W23 land, since
 W18 and W20 both change how the page behaves under a thumb specifically.
+
+---
+
+## W29 — «más de 15 años de experiencia clínica» is an unverified claim ⏸️ BLOCKED
+
+**Blocked on the doctor. Raised by W12b, which was instructed to raise it and not fix it.**
+
+`data/credentials.yaml:7` reads:
+
+```yaml
+- text: Psiquiatra con más de 15 años de experiencia clínica
+```
+
+`CLAUDE.md`'s first hard prohibition lists **years of experience** among the things that must
+never be invented, and its verified-credentials list is "máster en TEA, especialista en
+adicciones, experiencia clínica" — **without a number**. Round 1's W6 already acted on this
+once: it deliberately excluded this line from the JSON-LD `hasCredential`, so the number is
+on the page but not in the schema.
+
+It may well be true and simply undocumented. That is exactly why a session must not resolve
+it either way — deleting a claim he stands behind is as wrong as leaving an invented one.
+
+### What a decision needs to cover
+
+- Is "más de 15 años" correct? If yes, it stays as written and this item closes as ✅ with
+  the confirmation recorded, and `CLAUDE.md`'s verified-facts table gains the number so the
+  next sweep does not re-raise it.
+- If it cannot be confirmed, it becomes `COMPLETAR` or drops to "experiencia clínica" without
+  a figure — his call which.
+- Either way, decide whether it should then join `hasCredential` in `schema.html`. It is not a
+  formal qualification, so probably not; W6's reasoning stands independently of the number.
+
+---
+
+## W30 — Title case in the machine-facing strings, and the accent in «Angel» ⏸️ BLOCKED
+
+**Blocked on the doctor. Two of the four were already fenced off by W12b; the sweep found the
+other two and left all four alone.**
+
+`CLAUDE.md`: *"Capitalisation is Spanish sentence case, not English title case."* Four strings
+disagree with it, and all four are the kind a session should not restyle on its own.
+
+| Where | String | Why it was left |
+| --- | --- | --- |
+| `hugo.toml:4` `title` | "Psiquiatra **E**specialista en **A**utismo y **A**dicciones" | A search-result string, not a heading. `description` right below it already uses lower case, so the two disagree with each other. |
+| `layouts/partials/head.html:19` `og:title` | "Dr. Miguel de la Oliva - Especialista en **S**alud **M**ental" | **Found by W12b's sweep, new.** The exact sibling of the above: `og:description` uses "la salud mental" in lower case, so the pair disagree the same way. It also uses a hyphen where Spanish typography wants an em dash. |
+| `hugo.toml:47` `contact.specialties` | "Autismo • Adicciones • **S**alud **M**ental **G**eneral" | In `CLAUDE.md`'s verified-facts table, so restyling it is his call. |
+| `data/credentials.yaml:8,10` | "Máster en **T**rastornos del **E**spectro **A**utista", "Especialista en **T**ratamiento de **A**dicciones" | Formal qualification names, and `CLAUDE.md` fences credentials off from editing. These are also published as `hasCredential` in the JSON-LD. |
+
+**Decide the four together.** Fixing `og:title` while leaving `title` would only move the
+inconsistency, and the first two are one decision, not two.
+
+### Also on this list, and genuinely separate
+
+`params.author` is **"Dr. Miguel Angel de la Oliva"** — no accent on **Ángel**. `CLAUDE.md`
+calls accents mandatory, but its own verified-facts table spells the name that way, so the
+table and the rule disagree and only he can say which is right. It is his name; a session
+does not get to add an accent to it. It reaches the `<meta name="author">`, the footer, and
+both the `Physician` and `MedicalBusiness` nodes in the JSON-LD, so if it changes it changes
+in five rendered places from one key.
+
+---
+
+## W31 — «No tiene que hacerlo solo» argues against the site's own thesis ⏸️ BLOCKED
+
+**Blocked on the doctor. Named as still open by W12b, which fixed the grammar in 2026-08-12
+and left the meaning.**
+
+`layouts/index.html:112`:
+
+> Está a una conversación de comenzar algo nuevo. **No tiene que hacerlo solo.**
+
+The `tuteo` in the original ("No tienes que hacerlo solo") was fixed to `usted` on 2026-08-12.
+What was left open is the word **solo** itself. `CLAUDE.md`: *"Be careful with 'solo' — the
+site's own thesis argues against it."* And `data/services.yaml` states that thesis outright:
+
+> Sanar no es tarea de uno solo. Es un proceso que nos incluye a todos.
+
+So the contact section tells the reader they do not *have* to do it alone — implying they
+could — while the services section says it is not a one-person job at all. The sentence is
+also the last thing above the composer, which is the highest-intention copy on the page.
+
+**This is a meaning change, not a register fix**, which is why W12b did not take it. Options
+worth putting to him, but he may have a better one:
+
+- Say the shared thing positively — "Lo hacemos juntos" — which is the first-person-plural
+  register `CLAUDE.md` reserves for shared work.
+- Drop the second sentence and let "Está a una conversación de comenzar algo nuevo" stand.
+- Keep it: "no tiene que hacerlo solo" is a warm, common phrase, and he may want it precisely
+  because it meets a frightened reader where they are rather than where the thesis is.
+
+---
+
+## W32 — A broken sentence in the doctor's own narrative ⏸️ BLOCKED
+
+**Blocked on the doctor. Found by W12b's sweep; it is his signed first-person text, so a
+session does not restructure it.**
+
+`content/_index.md:10-11`, the second paragraph, opening:
+
+> Fue desde la experiencia y el estudio de las neurodivergencias, dejé de ver las historias
+> desde fuera.
+
+It reads as a cleft sentence — *"Fue desde X **que** dejé de ver…"* — with the `que` missing,
+so what is on the page is an anacoluthon: two clauses joined by a comma with nothing linking
+them. The paragraph before it sets the construction up perfectly (*"lo que más marcó mi forma
+de ejercer no fue un aula, ni un título"*), which is what makes the missing word visible.
+
+**Almost certainly a typo, and the repair is one word** — insert `que`. It is left undone
+anyway because this is the passage carrying the site's entire proposition, it is signed
+*Dr. Miguel Angel de la Oliva* at the bottom of the file, and "almost certainly" is not the
+standard this repo holds itself to for his voice. W12b changed "los casos" → "las historias"
+in this same sentence on register grounds, which `CLAUDE.md` prescribes explicitly; sentence
+structure it does not.
+
+Confirm the intended sentence with him and apply it. If he wants it recast rather than
+patched, that is a one-line content edit and needs no code.
 
 ---
 

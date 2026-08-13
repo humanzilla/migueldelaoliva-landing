@@ -97,7 +97,10 @@ enableGitInfo          = false
     # historia clínica — no da por hecho ningún diagnóstico. Queda para el enlace
     # del número en la sección de contacto y para la lista de motivos que se ve
     # sin JavaScript; los CTA generales ya no abren WhatsApp, llevan al redactor.
-    defaultMessage = "Hola doctor, le escribo desde su página web porque me gustaría consultar con usted. ¿Podemos coordinar una cita?"
+    # «Hola, doctor.» con coma vocativa y punto, igual que `plantilla.sinNombre`
+    # en data/motivos.yaml: los dos son la primera frase del mismo mensaje según
+    # por dónde se entre, y no deberían saludar de dos maneras distintas.
+    defaultMessage = "Hola, doctor. Le escribo desde su página web porque me gustaría consultar con usted. ¿Podemos coordinar una cita?"
 
 # Google Analytics 4. El ID vive acá, y no en [params], porque es de donde lo lee
 # `site.Config.Services.GoogleAnalytics.ID` — una clave en [params] sería invisible

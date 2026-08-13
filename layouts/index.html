@@ -31,7 +31,11 @@
       <ul class="social-links" aria-label="Redes sociales">
         {{- range hugo.Data.social }}
         <li>
-          <a href="{{ .url }}" rel="noopener noreferrer me" target="_blank" aria-label="{{ .name }}">
+          {{/* El nombre visible dice la red pero no de quién es el perfil ni que
+               se abre fuera del sitio. El aria-label empieza por ese mismo
+               nombre —WCAG 2.5.3— y termina de decirlo. */}}
+          <a href="{{ .url }}" rel="noopener noreferrer me" target="_blank"
+             aria-label="{{ .name }} del {{ site.Params.hero.name }}. Se abre en una pestaña nueva.">
             {{ partial "social-icon.html" .icon }}
             <span>{{ .name }}</span>
           </a>
@@ -144,7 +148,7 @@
               <iframe
                 x-ref="mapa"
                 src="https://www.google.com/maps?q={{ $contact.latitude }},{{ $contact.longitude }}&amp;hl=es&amp;z=16&amp;output=embed"
-                title="Mapa de ubicación: {{ $contact.building }}, {{ $contact.city }}"
+                title="Mapa del consultorio en {{ $contact.building }}, {{ $contact.city }}."
                 loading="lazy"
                 referrerpolicy="no-referrer-when-downgrade"
                 allowfullscreen>

@@ -6,7 +6,7 @@
 #
 # Este archivo es la ÚNICA fuente de esas frases. Lo lee el servidor, para
 # armar los enlaces que funcionan sin JavaScript, y lo lee Alpine, que recibe
-# este mismo contenido como JSON. Si cambiás una frase acá, cambian las dos
+# este mismo contenido como JSON. Si se cambia una frase acá, cambian las dos
 # versiones a la vez; no hay copia en el JavaScript.
 #
 # QUIÉN HABLA: los mensajes los escribe el VISITANTE, no el doctor. Van en

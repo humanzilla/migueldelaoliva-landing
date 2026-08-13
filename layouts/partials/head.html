@@ -22,7 +22,10 @@
 <meta property="og:url" content="{{ .Permalink }}">
 <meta property="og:locale" content="es_BO">
 <meta property="og:image" content="{{ $ogImageURL }}">
-<meta property="og:image:alt" content="{{ site.Params.author }}">
+{{- /* og:image es el mismo retrato que el héroe, así que lleva el mismo texto
+       alternativo. Antes llevaba el nombre del doctor, que es una firma y no una
+       descripción de lo que se ve. */ -}}
+<meta property="og:image:alt" content="{{ site.Params.hero.photoAlt }}">
 
 <!-- Twitter -->
 <meta name="twitter:card" content="{{ site.Params.twitterCard }}">
