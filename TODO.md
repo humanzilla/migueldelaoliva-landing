@@ -32,7 +32,7 @@ the doctor first, not effort.
 | W18 — Sticky bar collides with the hero CTA on mobile | 1 | ✅ Done — 2026-08-12 |
 | W19 — The mobile header is 64 px of nothing | 2 | ✅ Done — 2026-08-13 |
 | W20 — Touch targets below 44×44 | 2 | ✅ Done — 2026-08-13 |
-| W21 — Focus states are effectively unstyled | 2 | ⬜ Not started |
+| W21 — Focus states are effectively unstyled | 2 | ✅ Done — 2026-08-13 |
 | W22 — Legibility: hairline body text, over-tight titles, sub-12 px labels | 2 | ⬜ Not started |
 | W23 — The stretched composer card and the left-pinned hero | 3 | ⬜ Not started |
 | W12b — Voice and tone sweep across all copy | 4 | ⬜ Not started |
@@ -535,7 +535,81 @@ claude "Read TODO.md and implement work item W20: raise every interactive elemen
 
 ---
 
-## W21 — Focus states are effectively unstyled
+## W21 — Focus states are effectively unstyled ✅ DONE
+
+### Outcome — 2026-08-13
+
+Every keyboard stop on the page now draws the same `2px solid #1f2937` ring, and the
+`outline: none` on the only text input is gone. **Zero user-agent focus rings remain.**
+Only file changed: `assets/css/main.css` (+33 −1).
+
+- **The global rule**, placed after `body` as the item specified, covering
+  `a`/`button`/`input` at `outline-offset: 2px` — the same treatment `.map-facade` already
+  used, so it looks like it was always there.
+- **`.composer-input`** — `outline: none` deleted, the `#1f2937` border-colour change kept.
+  The input now carries the ring like everything else. `outline: none` appears nowhere in
+  the file (the one grep hit is the comment explaining its removal).
+- **`.map-facade` not regressed.** Its `-2px` offset is `(0,2,0)` against the global rule's
+  `(0,1,1)`, so it wins on specificity regardless of order — checked as a computed value at
+  every tab stop, not assumed, and screenshotted to confirm the ring is still drawn inside
+  the clipping box.
+
+**Deviation — no `border-radius: 4px`.** The item's snippet includes it; it is a defect.
+`border-radius` in a `:focus-visible` rule sets *the element's own* radius, not the
+outline's, so it would square off the 999px pills — every `.chip` and every `.btn-contact` —
+at the moment they are focused. Browsers already draw the outline following each element's
+curve, which the screenshots confirm. Dropped, deliberately.
+
+**Deviation — no light ring on dark surfaces, and the instruction's premise does not hold.**
+The item asks for `#ffffff` on `.cta-button`, `.btn-contact--whatsapp` and the `.mission`
+band. With `outline-offset: 2px` the ring is drawn *outside* the border box, so its contrast
+is against the page behind it, not against the button's fill. Measured:
+
+| Ring | Against | Ratio |
+| --- | --- | --- |
+| `#1f2937` | white page | **14.68:1** |
+| `#1f2937` | `#f9fafb` composer card | **14.05:1** |
+| `#ffffff` | white page | **1.00:1** — invisible |
+
+A white ring is the one that would disappear. The dark ring is correct on both the dark
+`#1f2937` hero button and the green `#25d366` WhatsApp buttons, verified by sampling the
+painted pixels across the button edge: white page → 2 px `#1f2937` ring → 2 px white gap →
+fill. **`.mission` was moot in any case — it contains no focusable element**, only a heading
+and a paragraph, so there was nothing there to give a ring to.
+
+**Added beyond the item — `.composer-step:focus-visible`.** Alpine moves focus to each step
+as it appears (W17's step management, `tabindex="-1"`), and with a keyboard that was lighting
+the browser's blue `1px auto rgb(0,95,204)` ring — the last UA fallback on the page, and
+exactly what this item's Context objects to. Same ring at `outline-offset: 4px`, since it
+surrounds a block rather than a pill. `#su-mensaje` carries `tabindex="-1"` too but needs
+nothing: on a mouse-driven CTA jump `:focus-visible` does not match, so no ring is drawn
+around the whole card.
+
+**A measurement trap, recorded because it cost real time and will catch the next session.**
+`.cta-button` and `.btn-contact` both carry `transition: all 0.2s ease`, which includes
+`outline-color` and `outline-offset`. Read `getComputedStyle` immediately after a `Tab` and
+you get an interpolated value that looks exactly like a browser override — `3px solid
+rgb(255,255,255) @ 0px`, the UA default's signature — and a screenshot taken at the same
+moment paints a half-blended `#eff0f1`. It led to a wrong diagnosis and a discarded
+box-shadow workaround before a settle wait showed the plain rule was correct all along.
+**Wait ≥300 ms after focusing before measuring or screenshotting anything on this page.**
+
+Verified in headless Chromium (Playwright MCP) against the built site on `:1403`:
+
+| Check | Result |
+| --- | --- |
+| Tab through, 1440×900, composer expanded | **22 stops, all `2px solid rgb(31,41,55)`**, all `:focus-visible`, 0 UA fallbacks. |
+| Tab through, 375×812 | **23 stops** (the sticky bar link is the extra), same result. No horizontal overflow. |
+| Offsets | `+2px` everywhere except `.map-facade` at `-2px` — correct on every stop. |
+| Painted pixels, dark hero button | white → 2 px `#1f2937` → 2 px white gap → fill. Ring is real, not just computed. |
+| Green `.btn-contact--whatsapp`, pressed `.chip` (dark fill), `.composer-input` | Ring visible on all three; screenshots confirm. |
+| Composer flow, keyboard only | 6 stops chip → paso 2 → chip → paso 3 → input → CTA, ring visible at every one, 0 blue rings. Built `wa.me` href carries the typed name. W17 check 6 re-run and passing. |
+| Mouse click on a chip | `:focus-visible` false, `outline-style: none` — no lingering ring. |
+| `.map-facade` | `2px solid #1f2937 @ -2px`, drawn inside `.map-embed`, not clipped. |
+| Scripting disabled (`**/js/**` aborted) | 14 stops walked, all with the correct ring. |
+| `prefers-reduced-motion: reduce` | Ring present, `transition-duration` 1e-05s, all sections visible. |
+| `outline: none` anywhere in the repo | None. |
+| `hugo --gc --minify` | Clean. |
 
 ### Context
 

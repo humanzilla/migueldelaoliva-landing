@@ -12,6 +12,36 @@ body {
   font-size: 16px;
 }
 
+/* Foco visible. El mismo contorno que `.map-facade` ya traía, ahora para todo
+   lo que se puede tocar con el teclado: el redactor se completa sin ratón y eso
+   no vale nada si no se ve dónde está uno.
+
+   El contorno va por fuera (`outline-offset` positivo), así que el color se
+   compara contra el fondo de la página —blanco o #f9fafb—, no contra el relleno
+   del botón. Por eso es oscuro y no blanco: #1f2937 da 14,7:1 sobre blanco,
+   mientras que un anillo blanco sobre página blanca no se vería. Vale también
+   para el botón oscuro del héroe y para el verde de WhatsApp, porque el anillo
+   de ninguno de los dos se dibuja encima del botón.
+
+   Sin `border-radius` aquí: lo heredaría el elemento, no el contorno, y las
+   pastillas de 999px —chips y .btn-contact— se volverían rectángulos al
+   enfocarlas. El navegador ya sigue la curva de cada elemento. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid #1f2937;
+  outline-offset: 2px;
+}
+
+/* Los pasos del redactor no se tabulan, pero Alpine les manda el foco cuando
+   aparecen, y con el teclado eso encendía el anillo azul del navegador —el
+   único que quedaba sin convertir—. Mismo contorno, algo más separado porque
+   aquí rodea un bloque entero y no una pastilla. */
+.composer-step:focus-visible {
+  outline: 2px solid #1f2937;
+  outline-offset: 4px;
+}
+
 .container {
   max-width: 1100px;
   margin: 0 auto;
@@ -622,9 +652,11 @@ nav {
   padding: 0.65rem 0.85rem;
 }
 
+/* El borde se oscurece igual que antes, pero ya no a cambio del contorno: la
+   regla global de arriba pone el anillo y el `outline: none` que había aquí lo
+   borraba en el único campo de texto de la página. */
 .composer-input:focus {
   border-color: #1f2937;
-  outline: none;
 }
 
 /* Vista previa. El verde pálido y la esquina mordida son los de una burbuja de
