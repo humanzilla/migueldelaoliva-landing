@@ -45,7 +45,7 @@
         {{ .Content }}
       </div>
       <div class="credentials-box">
-        <h3>¿Por qué puedo ayudarte?</h3>
+        <h3>¿Por qué puedo ayudarle?</h3>
         <ul class="credentials-list">
           {{- range hugo.Data.credentials }}
           <li>{{ .text }}</li>
@@ -58,9 +58,14 @@
 
 <section id="servicios" class="what-i-do">
   <div class="container">
-    <h2 class="section-title">Así es como trabajo contigo</h2>
+    <h2 class="section-title">Así es como trabajo con usted</h2>
     <div class="services-intro">
-      <p class="big-text">Cada historia es distinta<br>Y eso cambia todo.</p>
+      {{- /* El punto no es cosmético: `<br>` corta la línea a la vista pero no separa
+             las palabras para un lector de pantalla, que sin él lee «distintaY eso
+             cambia todo». No sirve poner un espacio antes del `<br>` — `--minify`
+             lo borra; el punto es lo único que sobrevive y es lo que marca el
+             final de la frase. */ -}}
+      <p class="big-text">Cada historia es distinta.<br>Y eso cambia todo.</p>
     </div>
     <div class="services-grid">
       {{- range hugo.Data.services }}
@@ -90,7 +95,7 @@
      final para encontrar cómo escribir. */}}
 <section class="cta-band">
   <div class="container">
-    <p class="cta-band__text">Si algo de esto te suena, escribime. No hace falta que tengas las palabras exactas.</p>
+    <p class="cta-band__text">Si algo de esto le suena, escríbame. No hace falta que tenga las palabras exactas.</p>
     {{ partial "whatsapp-cta.html" (dict "placement" "mid" "variant" "primary" "destino" "composer") }}
   </div>
 </section>
@@ -99,12 +104,12 @@
   <div class="container">
     <div class="contact-intro">
       <h2 class="section-title">Trabajemos juntos</h2>
-      <p class="big-text">Estás a una conversación de comenzar algo nuevo. No tienes que hacerlo solo.</p>
+      <p class="big-text">Está a una conversación de comenzar algo nuevo. No tiene que hacerlo solo.</p>
     </div>
 
     <div class="contact-grid">
       <div class="contact-info">
-        <h3>Información de Consulta</h3>
+        <h3>Información de consulta</h3>
 
         <div class="contact-item">
           <strong>Ubicación</strong>

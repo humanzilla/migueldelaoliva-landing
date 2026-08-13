@@ -40,7 +40,7 @@
 {{- $message := .message | default $whatsapp.defaultMessage -}}
 {{- $aria := .aria | default (cond
       $alComposer
-      (printf "%s. Baja a «Tu mensaje, ya escrito», donde armás el mensaje y desde ahí se abre WhatsApp." $label)
+      (printf "%s. Baja a «Su mensaje, ya escrito», donde arma el mensaje y desde ahí se abre WhatsApp." $label)
       (printf "%s. Se abre una conversación nueva con el %s." $label site.Params.hero.name)) -}}
 {{- /* `urlquery` codifica el espacio como «+», que sólo significa espacio si
        quien lee la query aplica form-encoding. Los ejemplos de WhatsApp usan
@@ -66,7 +66,7 @@
        le dice a la analítica de W15 que este clic no es una conversación
        abierta sino un paso hacia el redactor. */ -}}
 {{- if $alComposer -}}
-<a class="{{ $class }}" href="#tu-mensaje" data-cta="{{ .placement }}" data-destino="composer" aria-label="{{ $aria }}">
+<a class="{{ $class }}" href="#su-mensaje" data-cta="{{ .placement }}" data-destino="composer" aria-label="{{ $aria }}">
 {{- else -}}
 <a class="{{ $class }}" href="{{ $href | safeURL }}" data-cta="{{ .placement }}" target="_blank" rel="noopener noreferrer" aria-label="{{ $aria }}">
 {{- end }}

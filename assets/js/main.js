@@ -53,7 +53,7 @@
   const bar = document.querySelector('.sticky-cta');
   // .hero-actions and not the button alone: the secondary "Ver dirección y
   // horarios" link sits in the same row and the bar covered that too.
-  const targets = ['.hero-actions', '#tu-mensaje']
+  const targets = ['.hero-actions', '#su-mensaje']
     .map(selector => document.querySelector(selector))
     .filter(Boolean);
   if (!bar || !targets.length) return;

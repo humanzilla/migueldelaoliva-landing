@@ -2,7 +2,7 @@
 #
 # La barrera real de una primera consulta psiquiátrica no es el precio: es no
 # saber cómo empezar a escribir. Acá el mensaje se arma con dos elecciones —qué
-# te trae y para quién es— y se abre WhatsApp con el texto ya cargado.
+# le trae y para quién es— y se abre WhatsApp con el texto ya cargado.
 #
 # Este archivo es la ÚNICA fuente de esas frases. Lo lee el servidor, para
 # armar los enlaces que funcionan sin JavaScript, y lo lee Alpine, que recibe
@@ -11,8 +11,9 @@
 #
 # QUIÉN HABLA: los mensajes los escribe el VISITANTE, no el doctor. Van en
 # primera persona y lo tratan de usted, que es como un cruceño le escribe a un
-# psiquiatra que todavía no conoce. (El sitio trata de vos a quien lee; acá
-# quien lee es el que escribe.)
+# psiquiatra que todavía no conoce. Este archivo tuvo razón antes que el resto
+# del sitio: desde 2026-08-12 el doctor también trata de usted a quien lee, así
+# que el trato es simétrico y ya no hay que explicar la diferencia.
 #
 # QUÉ NO DICEN: ninguno da por hecho un diagnóstico. Por eso «una evaluación
 # relacionada con autismo» y no «tengo autismo», y por eso «un consumo que me
@@ -33,7 +34,7 @@ plantilla:
   persona: "Es {persona}."
   cierre: "¿Qué horarios tiene disponibles?"
 
-# Paso 1 — qué te trae. `frase` entra en «Quisiera agendar una consulta por …»,
+# Paso 1 — qué le trae. `frase` entra en «Quisiera agendar una consulta por …»,
 # así que va en minúscula y sin punto final.
 motivos:
   - id: autismo
@@ -61,7 +62,7 @@ motivos:
     frase: "orientación como familia"
 
   # Para quien llega hasta acá y no se reconoce en ninguna de las anteriores.
-  # La franja del medio de la página ya dice «no hace falta que tengas las
+  # La franja del medio de la página ya dice «no hace falta que tenga las
   # palabras exactas»; esta opción es esa misma frase, elegible.
   - id: no-se
     label: Todavía no sé

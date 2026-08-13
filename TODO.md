@@ -615,6 +615,14 @@ everything the other items produce.
 `CLAUDE.md` is the guide (round 1's W12a wrote it). This item applies it. Running it before
 W18–W23 means running it twice, since W19 adds a header string and W23 reorders the hero.
 
+> **2026-08-12 — the language rule changed under this item.** The doctor read the site and
+> rejected `voseo` as not proper for a doctor. The reader is now addressed as **`usted`**
+> throughout; see the rewritten **Language** and **Person** sections of `CLAUDE.md`, which
+> also cover the one deliberate exception (interface imperatives stay `tú`: `Elige`, `Baja`).
+> The `usted` conversion itself was already applied across every file listed below — so what
+> is left for this item is the rest of the sweep (capitalisation, alt text, `aria-label`s),
+> not the person. **Do not convert anything back to `vos`.**
+
 ### Instructions
 
 Sweep every piece of user-facing text against `CLAUDE.md`:
@@ -629,17 +637,36 @@ Sweep every piece of user-facing text against `CLAUDE.md`:
 **Known specific fixes — the first three were found in the 2026-08-12 design review and are
 confirmed present in the built page:**
 
-1. `layouts/index.html:100` — **"No tienes que hacerlo solo."** is tuteo. → **"No tenés que
-   hacerlo solo."** Also reconsider "solo" entirely: the site's own thesis, in
-   `data/services.yaml`, is *"Sanar no es tarea de uno solo."* The sentence argues against
-   itself.
-2. `layouts/partials/header.html` — nav labels **"Mi Historia"** and **"Qué Hago"** are
-   English title case. → **"Mi historia"**, **"Qué hago"**. `CLAUDE.md`: *"Capitalisation is
-   Spanish sentence case, not English title case."*
-3. `layouts/index.html:105` — **"Información de Consulta"** → **"Información de consulta"**.
-   Same rule.
-4. `data/services.yaml` — check every second-person verb form for voseo.
-5. All motive strings in `data/motivos.yaml` and the CTA labels in `[params.whatsapp]`.
+1. ~~`layouts/index.html:100` — **"No tienes que hacerlo solo."** is tuteo.~~ **Done
+   2026-08-12**, as **"No tiene que hacerlo solo."** — `usted`, not the `tenés` this item
+   originally called for. Still open: reconsider "solo" entirely, since the site's own
+   thesis in `data/services.yaml` is *"Sanar no es tarea de uno solo."* The sentence argues
+   against itself, and that is a meaning change the doctor should approve.
+2. ~~`layouts/partials/header.html` — nav labels **"Mi Historia"** and **"Qué Hago"** are
+   English title case.~~ **Done 2026-08-12** → "Mi historia", "Qué hago".
+3. ~~`layouts/index.html:105` — **"Información de Consulta"**.~~ **Done 2026-08-12** →
+   "Información de consulta".
+
+   The same sweep also caught the five service `<h3>`s in `data/services.yaml`, which the
+   original item missed: "Consulta psiquiátrica integral", "Acompañamiento en autismo",
+   "Recuperación de adicciones", "Terapia familiar", "Educación comunitaria". Nothing
+   downstream reads those titles — `schema.html` does not touch `data/services.yaml`.
+
+   **Deliberately left in title case, both need the doctor:**
+   - `data/credentials.yaml` — "Máster en Trastornos del Espectro Autista", "Especialista
+     en Tratamiento de Adicciones". These are formal qualification names, and `CLAUDE.md`
+     fences credentials off from editing.
+   - `hugo.toml` `contact.specialties` — "Salud Mental General". It is in the verified-facts
+     table, so restyling it is his call, not a sweep's.
+   - `hugo.toml` `title` — "Psiquiatra Especialista en Autismo y Adicciones". A
+     search-result string, not a heading; `description` already uses lower case, so the two
+     disagree. Worth a decision, not a silent fix.
+4. ~~`data/services.yaml` — check every second-person verb form for voseo.~~ **Done
+   2026-08-12** as `usted`: `le lleva`, `su proceso`, `su libertad`.
+5. ~~All motive strings in `data/motivos.yaml` and the CTA labels in `[params.whatsapp]`.~~
+   **Done 2026-08-12.** The motive strings never needed it — they are written by the
+   visitor and were already `usted`. The CTA labels became `Escríbame por WhatsApp` and
+   `Escríbame — le ayudo con el mensaje`.
 
 Also check that alt text, `aria-label`s and the iframe `title` read as written language, not
 as slugs — they are read aloud, and they are part of the voice too.

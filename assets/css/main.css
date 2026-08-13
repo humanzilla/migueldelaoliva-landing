@@ -514,7 +514,7 @@ nav {
 /* Selector de motivos. Hereda el fondo, el relleno y el radio de la tarjeta
    «Agendamiento en línea» que ocupaba esta celda. */
 /* `scroll-margin-top` porque es el destino de los CTA de toda la página: sin
-   eso el salto deja el título «Tu mensaje, ya escrito» pegado al borde de
+   eso el salto deja el título «Su mensaje, ya escrito» pegado al borde de
    arriba y no se ve que empieza una tarjeta. */
 .contact-composer {
   background: #f9fafb;

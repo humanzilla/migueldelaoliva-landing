@@ -80,15 +80,16 @@ enableGitInfo          = false
   # y la barra fija.)
   [params.whatsapp]
     # La etiqueta de los enlaces que abren WhatsApp de verdad: el del redactor y
-    # el del número, en la sección de contacto.
-    label = "Escribime por WhatsApp"
+    # el del número, en la sección de contacto. Lo dice el doctor, así que va en
+    # usted, como todo lo que él le dice a quien lee (CLAUDE.md, «Language»).
+    label = "Escríbame por WhatsApp"
 
     # La etiqueta de los CTA que llevan al redactor —héroe, franja del medio y
     # barra fija— y no a WhatsApp. Dice las dos cosas a propósito: quién recibe
     # el mensaje y que no hay que escribirlo en frío. Un botón que dijera
-    # «Escribime por WhatsApp» y en vez de eso bajara la página estaría
+    # «Escríbame por WhatsApp» y en vez de eso bajara la página estaría
     # prometiendo una cosa y haciendo otra.
-    composerLabel = "Escribime — te ayudo con el mensaje"
+    composerLabel = "Escríbame — le ayudo con el mensaje"
 
     # El mensaje llega escrito para que nadie tenga que redactar en frío la
     # primera frase sobre su salud mental. Lo escribe el visitante, no el

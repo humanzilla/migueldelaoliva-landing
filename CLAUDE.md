@@ -33,38 +33,71 @@ it was always there.
 
 ---
 
-## Language — Spanish, es-BO, **voseo**
+## Language — Spanish, es-BO, **usted**
 
-Santa Cruz de la Sierra uses *voseo*. The site is written for cruceños. Peninsular or
-neutral-Mexican Spanish reads as imported and costs trust.
+The reader is addressed as **`usted`**, everywhere. This is the doctor's own decision,
+taken 2026-08-12 after he read the site: *the tone is not proper for a doctor and feels
+awkward.* It replaces the `voseo` rule the site was built on. Do not revert it as if it
+were a dialect regression — it is not.
 
-**Use `vos`. Never `tú`.**
+The old rule confused **dialect** with **register**. Voseo is genuinely what Santa Cruz
+speaks — with people it already knows. A psychiatrist writing to someone who has not met
+him, often a parent, often older than he is, uses `usted`. That is not imported or
+neutral-Mexican Spanish; it is the correct distance for a **first introduction**, which
+is exactly what this page is.
 
-| Never (tuteo) | Always (voseo) |
+Half the site already agreed. The messages the *visitor* sends — every `frase` in
+`data/motivos.yaml`, and `whatsapp.defaultMessage` in `hugo.toml` — have always used
+`usted` toward the doctor. The page used to have the patient speaking formally upward
+while the doctor spoke familiarly downward. That asymmetry was most of what felt wrong.
+
+**Use `usted`. Never `vos`, never `tú`.**
+
+| Never (vos / tú) | Always (usted) |
 | --- | --- |
-| tú | vos |
-| tienes | tenés |
-| puedes | podés |
-| quieres | querés |
-| eres | sos |
-| sabes | sabés |
-| necesitas | necesitás |
-| sientes | sentís |
-| vienes | venís |
-| escríbeme | escribime |
-| cuéntame | contame |
-| escríbenos / mándame | escribinos / mandame |
-| ven, mira, elige, deja | vení, mirá, elegí, dejá |
+| tenés / tienes | tiene |
+| podés / puedes | puede |
+| querés / quieres | quiere |
+| sos / eres | es |
+| sabés / sabes | sabe |
+| necesitás / necesitas | necesita |
+| sentís / sientes | siente |
+| tu, tus | su, sus |
+| te (object) | le / lo / la |
+| ti, contigo, tuyo | usted, con usted, suyo |
+| escribime / escríbeme | escríbame |
+| contame / cuéntame | cuénteme |
+| si querés / si quieres | si quiere |
+| cuando estés listo | cuando esté listo |
+| no te preocupes | no se preocupe |
 
-**Forms that are identical in both** — safe to use, and most of the current site is
-accidentally fine because of them: `te`, `tu`, `tus`, `ti`, `tuyo`, `estás`, `vas`,
-`das`, and every first-person and plural form (`acompaño`, `trabajamos`, `hablemos`).
+The plural is **`ustedes`** — the only plural this site has.
 
-**Subjunctive and negative commands:** use the standard form, which is what Santa Cruz
-actually says — `no te preocupes`, `cuando quieras`, `si necesitás hablar`. Do **not**
-write `no te preocupés`. If a form feels uncertain, rewrite around it: infinitive
-(`escribir cuando quieras`), first person plural (`coordinamos una cita`), or
-impersonal.
+**Formal is not cold.** Warmth lives in vocabulary and sentence shape, not in
+grammatical person. *"No hace falta que tenga las palabras exactas"* is exactly as warm
+as the `vos` version was. Nothing in **Register** below is loosened by this change:
+short sentences, no clinical distance, `persona` not `paciente`, no urgency. If a line
+lands stiff after conversion, rewrite the line — do not reach back for `vos`.
+
+**Prefer no imperative at all.** Infinitive (`escribir cuando quiera`), first person
+plural (`coordinamos una cita`) and impersonal (`no se envía nada hasta que toque
+enviar`) all sidestep the question, and usually read warmer than a command.
+
+### The one exception — interface instructions
+
+The split is by **who is speaking**:
+
+- **The doctor addressing the reader → `usted`,** his imperatives included:
+  `Escríbame por WhatsApp`; `Si algo de esto le suena, escríbame`.
+- **The interface instructing the user → light imperative, `tú` form:**
+  `Elige un par de cosas`; `Baja a «Su mensaje, ya escrito»`.
+
+Also the doctor's call, and deliberate. `Elija` reads as a bureaucratic order on a
+form; `Elige` reads as a button label. It is how software is written across Latin
+America and it does not register as an error. It covers **only** instructions about
+operating the page, never anything the doctor says. Exactly two strings on the site
+qualify — `composer.html` and the `aria-label` in `whatsapp-cta.html`. Do not grow the
+list, and do not "fix" those two into `usted`.
 
 **Never Peninsular Spanish:** no `vosotros` / `os` / `vuestro`, no `coger`, no
 `ordenador`, no `vale`, no `¡venga!`.
@@ -78,15 +111,20 @@ accented characters, which are exactly what breaks.
 
 ## Person
 
-- **The doctor: first person singular.** "Acompaño", "trabajo con", "involucro a la
-  familia", "doy charlas". He speaks in his own voice throughout — the site is not
-  written *about* him in the third person. Existing example, `content/_index.md`: *"Hoy
-  vivo en Santa Cruz, donde acompaño a personas y familias en momentos difíciles."*
-- **The reader: second person singular, voseo.** "Podés escribirme", "contame qué te
-  pasa".
+- **The doctor: first person singular — unchanged by the move to `usted`.** His voice was
+  never the problem; only the distance to the reader was. "Acompaño", "trabajo con",
+  "involucro a la familia", "doy charlas". He speaks in his own voice throughout — the
+  site is not written *about* him in the third person. Existing example,
+  `content/_index.md`: *"Hoy vivo en Santa Cruz, donde acompaño a personas y familias en
+  momentos difíciles."* That file holds no second-person forms at all, and did not change.
+- **The reader: `usted`.** "Puede escribirme", "cuénteme qué le pasa".
 - **First person plural for shared work** — "trabajamos juntos", "creamos un plan",
   "coordinamos una cita". This is the register of `data/services.yaml` and it carries the
-  site's thesis: the process is shared, not administered.
+  site's thesis: the process is shared, not administered. It is also the best escape hatch
+  when an `usted` construction lands stiff.
+- **Do not soften his headings into the plural.** "Así es como trabajo con usted" stays
+  his; "Así es como trabajamos juntos" quietly changes whose voice it is. Fix stiffness
+  inside a sentence, not by moving it out of his mouth.
 - Third person only in schema, meta descriptions and the `<title>`, where a machine or a
   search result is the audience.
 
@@ -100,11 +138,11 @@ marketing gloss, no urgency tactics, no exclamation marks.
 | Avoid | Prefer |
 | --- | --- |
 | tratar, manejar, abordar (a la persona) | acompañar, escuchar, trabajar con |
-| paciente (as a label) | persona, vos, tu hijo, tu hija, la familia |
+| paciente (as a label) | persona, usted, su hijo, su hija, la familia |
 | sufre de, padece de | vive con, tiene |
 | caso | historia, situación |
 | solución, resultados garantizados | proceso, camino, acompañamiento |
-| tienes que, debes | podés, si querés, cuando estés listo |
+| tiene que, debe | puede, si quiere, cuando esté listo |
 
 **The family is part of the process, not a bystander.** `data/services.yaml` already
 says it: *"Sanar no es tarea de uno solo."* Copy that addresses a parent should address
@@ -234,10 +272,10 @@ as slugs or filenames.
 - **Alt text describes the person and setting**, not the file: *"Dr. Miguel de la Oliva,
   psiquiatra, en su consultorio en Santa Cruz de la Sierra."* Never repeat a heading the
   image sits inside — the accessible name gets read twice.
-- **Link and button labels say where they go and what happens**: "Escribime por
+- **Link and button labels say where they go and what happens**: "Escríbame por
   WhatsApp", "Ver en Google Maps". Never "clic aquí", "más", "leer más".
 - **Headings are sentences in his voice** — the existing ones set the register:
-  "¿Quién soy y por qué hago esto?", "Así es como trabajo contigo", "Mi propósito es
+  "¿Quién soy y por qué hago esto?", "Así es como trabajo con usted", "Mi propósito es
   simple", "Trabajemos juntos".
 - Capitalisation is Spanish sentence case, not English title case: "Información de
   consulta", not "Información De Consulta".
@@ -248,9 +286,11 @@ as slugs or filenames.
 
 ## Before shipping any copy change
 
-- [ ] No `tú`/`tienes`/`puedes`/`quieres` — voseo throughout, or a form identical in both.
+- [ ] No `vos`/`tú` forms — `usted` throughout. No `tenés`/`podés`/`tienes`/`puedes`, no
+      `te`/`tu`/`tus`/`contigo` aimed at the reader. The two interface imperatives
+      (`Elige`, `Baja`) are the only exceptions and are already written.
 - [ ] Accents, `¿` and `¡` present, including in `alt`, `aria-label` and `title`.
-- [ ] Doctor in first person, reader in second person voseo.
+- [ ] Doctor in first person, reader in `usted`, shared work in first person plural.
 - [ ] Nothing invented — every fact traces to `hugo.toml`, `data/`, or is `COMPLETAR`.
 - [ ] No cure/disease framing for autism, no puzzle imagery, no moral framing of
       addiction.
