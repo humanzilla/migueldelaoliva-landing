@@ -37,7 +37,7 @@ the doctor first, not effort.
 | W23 — The stretched composer card and the left-pinned hero | 3 | ⬜ Not started |
 | W12b — Voice and tone sweep across all copy | 4 | ⬜ Not started |
 | W27 — `.services-grid` overflows below 390 px | 2 | ✅ Done — 2026-08-13 |
-| W28 — Text on the WhatsApp green fails contrast | 2 | ⬜ Not started |
+| W28 — Text on the WhatsApp green fails contrast | 2 | ✅ Done — 2026-08-13 |
 | W26 — One way in: every CTA leads to the composer | 1 | ✅ Done — 2026-08-12 |
 | W24 — Two-column hero | — | ⏸️ Blocked — needs an owner decision |
 | W25 — Verify on a real phone over a real connection | — | ⏸️ Blocked — needs hardware |
@@ -1006,10 +1006,119 @@ claude "Read TODO.md and implement work item W27: .services-grid keeps a 350px m
 
 ---
 
-## W28 — Text on the WhatsApp green fails contrast, and one button is grey on green
+## W28 — Text on the WhatsApp green fails contrast, and one button is grey on green ✅ DONE
 
-**Found while re-running W22's contrast sweep on 2026-08-13. Pre-existing — no round-2 item
-caused it.** Raised here rather than fixed there, per the completion protocol.
+### Outcome — 2026-08-13
+
+**Zero sub-4.5:1 combinations remain on the page.** The three failures resolve to one number,
+**7.40:1**, and they resolve for the same reason: the label on the WhatsApp green is now the
+site's own `#1f2937`. Only file changed: `assets/css/main.css` (+20 −3, 14 of which are two
+comments).
+
+**The owner's decision, 2026-08-13 — this is half the item, so it is recorded first.** Asked
+whether to keep the brand green and accept 1.98:1, darken the fill, or keep the fill and
+darken the text, he chose: **keep `#25d366` exactly, take the text to `#1f2937`.** The fill,
+the border and the hover are untouched; the green still does its job as the channel signal,
+and it is the *text* that moved. **The next contrast sweep should not re-raise this.**
+
+| Combination | Ratio | |
+| --- | --- | --- |
+| `#ffffff` on `#25d366` — what shipped | **1.98:1** | fails 4.5:1, and fails the 3:1 large-text bar too |
+| **`#1f2937` on `#25d366` — what ships now** | **7.40:1** | |
+| `#1f2937` on `#1ebe5b`, the hover fill | **5.99:1** | measured by hovering, not assumed |
+| `#ffffff` on `#128c7e` | 4.13:1 | **still fails** |
+
+**Correction to this item's own Context, and it matters.** It offers `#128c7e` as a fill that
+"carries white comfortably". It does not — white on it is **4.13:1**, under 4.5:1 for normal
+text, so the fix this item proposed would not have fixed it. Anyone reaching for that number
+later should reach for something else.
+
+**One rule covered all three buttons.** `.composer__cta` and `.sticky-cta__link` both compose
+`btn-contact--whatsapp` and override only layout, never colour, so `color: #fff` → `#1f2937`
+at `main.css:535` reached the contact number, the composer CTA and the sticky bar at once. The
+glyph followed on its own — `.btn-contact svg` is `fill: currentColor`.
+
+#### The grey one was a cascade collision, and it reached two things this item did not know about
+
+`.contact-item span, .contact-item p` is `(0,1,1)`, which beats any single-class rule on a
+descendant no matter what the source order is. So inside `.contact-item` it was silently
+winning three arguments it was never meant to enter — not one:
+
+| Target | Its own rule asks for | What actually rendered |
+| --- | --- | --- |
+| `.btn-contact--whatsapp span` — the phone button | white, from `main.css:535` | `#6b7280` on green, **2.44:1** |
+| `.map-facade__label` | 16 px `#1f2937` | 15.6 px `#6b7280` |
+| `.map-facade__note` | 13 px `#6b7280` | 15.6 px `#6b7280` |
+
+The map facade lives inside the first `.contact-item` (`index.html:129`), which is why it was
+caught. Both facade overrides were found while planning this item and **the owner chose to
+un-do them here** rather than defer them: `.map-facade__label` and `.map-facade__note` had
+been rendering at the same size, so the component had no label/note hierarchy at all. The
+before/after screenshots are the clearest evidence in this item.
+
+The fix is a child combinator, and it needed no `:not()` or `:is()` — neither appears anywhere
+in this file:
+
+```css
+.contact-item > span,
+.contact-item address { color: #6b7280; font-size: 0.975rem; }
+```
+
+The first `.contact-item` has no direct `<span>` child, so neither `.map-embed > button > span`
+nor `.contact-actions > a > span` is reachable any more. `<address>` inherits down to its own
+`<p>` and `<span>`, so nothing about the address block moved. `.contact-item address
+{ font-style: normal }` was left as its own rule — merging it would have been a bigger diff
+for nothing.
+
+**A side effect worth naming, because it is an improvement and someone will notice it.** The
+phone label was 15.6 px only because `.contact-item span` was setting it; it now inherits
+`.btn-contact`'s 14.4 px and therefore matches "Ver en Google Maps" sitting beside it. The two
+buttons in that row were different text sizes before and are not any more.
+
+**A second correction to this item's Context.** Its table lists the `.sticky-cta__link` label
+at 14.4 px. Measured, it is **16 px** — `.sticky-cta__link` declares `font-size: 1rem` and
+wins on source order over `.btn-contact`'s `0.9rem`. The 14.4 px entry is most likely the
+`<a class="btn-contact btn-contact--whatsapp">` element itself, which is white-on-green at
+14.4 px and is a fourth instance of the same failure, not a third. Nothing turns on it — every
+one of them is `#1f2937` now — but the table should not be quoted as measured.
+
+**The 34-combination sweep is now the baseline, and the count is viewport-dependent.** Re-run
+as the item asked, descending into inner `<span>`s and resolving the nearest *painted*
+ancestor background: **35 combinations at 1440×900** and **33 at 375×812**, composer expanded
+in both, **zero failures at either**. The weakest thing on the page is now `.map-facade__note`
+at **4.63:1** — 13 px `#6b7280` on the `#f9fafb` facade, which passes, and which only exists
+as a distinct combination *because* this item restored its 13 px. Quote 33–35, not 34: the
+figure moves with the viewport, since the sticky bar and the nav pills are not both present at
+any one width.
+
+Not touched, deliberately: `.btn-contact--motivo svg { fill: #25d366 }`. It is an
+`aria-hidden` glyph beside its own dark label — decorative, not text, and not a control
+boundary that has to carry 3:1.
+
+Verified in headless Chromium (Playwright MCP) against the built site on `:1406` — 1399–1405
+were avoided per the note about parallel sessions:
+
+| Check | Result |
+| --- | --- |
+| Contrast sweep, 1440×900, composer expanded | **35 combinations, 0 failures.** Weakest 4.63:1. |
+| Contrast sweep, 375×812, composer expanded | **33 combinations, 0 failures.** Weakest 4.63:1. |
+| The three green labels | Contact number, composer CTA and sticky bar all `rgb(31,41,55)` on `rgb(37,211,102)` — **7.40:1**. |
+| Hover | `#1ebe5b` fill, label still `#1f2937` — 5.99:1. Hovered and measured, not inferred. |
+| Painted pixels | Element screenshots of all three buttons: dark type on green, legible; the glyph darkened with it. The before shot shows the murky grey the item describes. |
+| Map facade | Label **16 px `#1f2937`**, note **13 px `#6b7280`** — its own rules, applying for the first time. |
+| Nothing else `.contact-item` styles | Four detail `<span>`s and three `<address>` lines all still `#6b7280` at 15.6 px. |
+| W20 — touch targets | 24 visible targets at 375 px and 0 under 44×44; same at 320 px. Phone button 45.6 px, one line. |
+| W21 — focus rings | 26 stops at 1440 px, **every one `2px solid rgb(31,41,55)`**, all `:focus-visible`, offsets `+2px` except `.map-facade`'s `−2px`. Measured after a 320 ms settle, per W21's own trap. |
+| W22 | Story weight 400, title tracking `normal` + `text-wrap: balance`, step label 12 px, `.mission-text` 680 px. |
+| W27 | `scrollWidth === innerWidth` at 320, 360 and 375 px; nothing escaping the viewport at 320. |
+| Scripting disabled (`**/js/**` aborted) | `js-reveal`/`js-sticky` both dropped after the 2 s fallback, all 6 sections at opacity 1, 7 motive links, bar visible with `transform: none`, both green labels dark. W8 and W18 intact. |
+| `prefers-reduced-motion: reduce` | All sections visible, `transition-duration` 1e-05s, colours and sizes as above. |
+| `hugo --gc --minify` | Clean. |
+
+**Nothing was left undone.** Both halves of the item are closed: the defect is fixed and the
+design question has a recorded answer rather than a deferral.
+
+### Context
 
 ### Context
 
@@ -1403,11 +1512,16 @@ Recorded so the next reviewer does not re-derive them:
 Credit where the site is already right, so nobody "fixes" it:
 
 - ~~**Contrast passes 4.5:1 at all 18 text styles measured**, in both light panels and the dark
-  `.mission` band.~~ **Superseded 2026-08-13 by W22's re-run.** True of those 18, and the light
+  `.mission` band.~~ ~~**Superseded 2026-08-13 by W22's re-run.** True of those 18, and the light
   panels and the `.mission` band are genuinely fine. But a sweep that also descends into the
   `<span>`s inside buttons finds **34** combinations, and **three fail** — all text on the
   WhatsApp green. Now tracked as **W28**. Use the 34-combination sweep as the baseline; the
-  18-style figure understates what is on the page.
+  18-style figure understates what is on the page.~~ **Fixed 2026-08-13 by W28.** All of them
+  pass now: **33 combinations at 375 px and 35 at 1440 px, zero failures**, weakest 4.63:1. The
+  count is viewport-dependent, so quote 33–35 rather than 34. The WhatsApp green keeps its
+  `#25d366` fill by the owner's decision and carries `#1f2937` text at 7.40:1 — see W28's
+  Outcome before re-opening it. **Never quote the 18-style figure**; it counts neither the
+  `<span>`s inside buttons nor the composer, which only exists once expanded.
 - ~~**No horizontal overflow and no element escaping the viewport at 375 px** — true, and true
   *only* at 375 px. `.services-grid` overflows at 360 px and below; found while verifying
   W19 and now tracked as **W27**.~~ **Fixed 2026-08-13 by W27.** Now true at 320, 360, 375,

@@ -416,8 +416,16 @@ nav {
   color: #1f2937;
 }
 
-.contact-item span,
-.contact-item p {
+/* Sólo el texto de los datos: los `span` sueltos —horarios, especialidades,
+   modalidad, seguros— y lo que va dentro de <address>, que hereda de acá.
+   Antes decía `.contact-item span, .contact-item p`, y un descendiente con
+   clase propia pierde contra eso pase lo que pase con el orden. Así este
+   bloque también pintaba tres cosas que no son suyas: el <span> de adentro del
+   botón verde de WhatsApp (gris sobre verde, 2.44:1) y las dos etiquetas de la
+   fachada del mapa, que terminaban con el tamaño de un dato de contacto en vez
+   del suyo. El combinador de hijo directo las deja a todas en paz. */
+.contact-item > span,
+.contact-item address {
   color: #6b7280;
   font-size: 0.975rem;
 }
@@ -530,9 +538,18 @@ nav {
   color: #fff;
 }
 
+/* El texto va oscuro, no blanco. El verde de WhatsApp es clarísimo: blanco
+   encima da 1.98:1, que no llega ni a la barra de 3:1 del texto grande, y este
+   es el color de los tres botones verdes del sitio —el del número, el del
+   redactor y el de la barra fija—. El relleno no se toca: sigue siendo el
+   #25d366 de la marca, que es lo que dice por dónde sale la conversación. Con
+   #1f2937, el mismo pizarra de toda la página, la etiqueta da 7.40:1, y 5.99:1
+   sobre el #1ebe5b del hover. El ícono va con `currentColor` y se oscurece
+   solo. (El #128c7e que se suele proponer para esto da 4.13:1 con blanco: no
+   alcanza.) */
 .btn-contact--whatsapp {
   background: #25d366;
-  color: #fff;
+  color: #1f2937;
   border: 1.5px solid #25d366;
 }
 
