@@ -31,6 +31,38 @@
   sections.forEach(section => observer.observe(section));
 })();
 
+// Sticky WhatsApp bar — appears once the hero CTA has scrolled away.
+//
+// Its own IIFE on purpose. The reveal above returns early whenever `js-reveal`
+// is absent — no JS, reduced motion, slow load — and anything nested inside it
+// would silently stop running for exactly the visitors who still need the bar.
+//
+// The hidden state is CSS gated on `js-sticky`, which head.html adds and takes
+// back if this file never arrives. `sticky-ready` is what tells it the observer
+// is up; it goes on only after the two elements are found, so a page without
+// them ends up with the always-visible bar rather than a hidden one.
+
+(() => {
+  const root = document.documentElement;
+  if (!root.classList.contains('js-sticky')) return;
+
+  const bar = document.querySelector('.sticky-cta');
+  const heroActions = document.querySelector('.hero-actions');
+  if (!bar || !heroActions) return;
+
+  root.classList.add('sticky-ready');
+
+  // Observing .hero-actions, not the button: the secondary "Ver dirección y
+  // horarios" link sits in the same row and the bar covered that too.
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      bar.classList.toggle('is-visible', !entry.isIntersecting);
+    });
+  });
+
+  observer.observe(heroActions);
+})();
+
 // Alpine components.
 //
 // Alpine is loaded from assets/js/vendor/, not from a CDN: a third-party

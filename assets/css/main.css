@@ -747,8 +747,12 @@ footer p {
     display: none;
   }
 
+  /* El relleno inferior va con el alto de la barra fija (72 px), igual que el
+     del pie: así, cuando el final del héroe queda al ras del borde inferior de
+     la pantalla, lo que la barra tapa es aire y no el botón. Es el piso que
+     protege el camino sin JavaScript, donde la barra está siempre visible. */
   .hero {
-    padding: 3rem 0 4rem;
+    padding: 3rem 0 6rem;
   }
 
   .story,
@@ -788,6 +792,24 @@ footer p {
     justify-content: center;
     padding: 0.85rem 1.1rem;
     font-size: 1rem;
+  }
+
+  /* Con JavaScript la barra se retira mientras el botón del héroe está en
+     pantalla: los dos dicen «Escribime por WhatsApp» y en un móvil se pisaban.
+     El estado oculto cuelga de `js-sticky`, que sólo pone el script; sin JS la
+     clase no existe y la barra se queda siempre visible, como hasta ahora.
+     `visibility` acompaña al desplazamiento para que un teclado no aterrice en
+     un enlace que nadie ve; se retrasa hasta que termina el movimiento. */
+  html.js-sticky .sticky-cta {
+    transform: translateY(110%);
+    visibility: hidden;
+    transition: transform 0.25s ease, visibility 0s linear 0.25s;
+  }
+
+  html.js-sticky .sticky-cta.is-visible {
+    transform: none;
+    visibility: visible;
+    transition: transform 0.25s ease;
   }
 
   /* La barra fija se monta sobre el pie de página; este relleno le devuelve el

@@ -60,6 +60,24 @@
   })();
 </script>
 
+<!-- Barra fija de WhatsApp: mismo trato que el revelado de arriba. El estado
+     oculto en main.css cuelga de .js-sticky, así que sin JavaScript la barra
+     está siempre presente. La clase se pone aquí y no en main.js para que la
+     barra no aparezca y se esconda de un salto en la primera pintura, y el
+     temporizador la devuelve si main.js nunca llega a montar el observador.
+     Sin reduced-motion de por medio: la barra debe funcionar igual, sólo que
+     sin transición — de eso ya se encarga el bloque del final de main.css. -->
+<script>
+  (function () {
+    var root = document.documentElement;
+    if (!('IntersectionObserver' in window)) return;
+    root.classList.add('js-sticky');
+    window.setTimeout(function () {
+      if (!root.classList.contains('sticky-ready')) root.classList.remove('js-sticky');
+    }, 2000);
+  })();
+</script>
+
 {{- if .IsHome }}
 {{- partial "schema.html" . -}}
 {{- end }}
