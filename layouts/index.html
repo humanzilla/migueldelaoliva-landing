@@ -7,21 +7,10 @@
       {{/* El retrato va fuera del <h1>: dentro, su `alt` se sumaba al nombre
            accesible del encabezado y los lectores de pantalla anunciaban el
            nombre dos veces. */}}
-      <img src="{{ $hero.photo }}" alt="{{ $hero.photoAlt }}" width="96" height="96" class="hero-photo" loading="eager" decoding="async">
+      <img src="{{ $hero.photo }}" alt="{{ $hero.photoAlt }}" width="140" height="140" class="hero-photo" loading="eager" decoding="async">
       <h1 class="headline">{{ $hero.h1 }}</h1>
       <p class="subheadline">{{ $hero.subheadline }}</p>
       <p class="big-text">{{ $hero.intro }}</p>
-
-      <ul class="social-links" aria-label="Redes sociales">
-        {{- range hugo.Data.social }}
-        <li>
-          <a href="{{ .url }}" rel="noopener noreferrer me" target="_blank" aria-label="{{ .name }}">
-            {{ partial "social-icon.html" .icon }}
-            <span>{{ .name }}</span>
-          </a>
-        </li>
-        {{- end }}
-      </ul>
 
       {{/* El botón principal lleva al redactor, no a un chat vacío. Pasó por
            las dos versiones: primero apuntaba a #contacto, después abría
@@ -33,6 +22,22 @@
         {{ partial "whatsapp-cta.html" (dict "placement" "hero" "variant" "primary" "destino" "composer") }}
         <a href="#contacto" class="hero-actions__secondary">Ver dirección y horarios</a>
       </div>
+
+      {{/* Las redes van después del botón, no antes. Estaban entre la
+           presentación y la única acción de la página: cuatro destinos que
+           llevan fuera del sitio, justo delante de lo que el sitio quiere que
+           pase. Quien quiera verlo antes de escribir las encuentra igual, un
+           poco más abajo. */}}
+      <ul class="social-links" aria-label="Redes sociales">
+        {{- range hugo.Data.social }}
+        <li>
+          <a href="{{ .url }}" rel="noopener noreferrer me" target="_blank" aria-label="{{ .name }}">
+            {{ partial "social-icon.html" .icon }}
+            <span>{{ .name }}</span>
+          </a>
+        </li>
+        {{- end }}
+      </ul>
     </div>
   </div>
 </section>

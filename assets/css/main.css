@@ -155,7 +155,7 @@ nav {
 
 .hero .big-text {
   margin-bottom: 3rem;
-  max-width: 600px;
+  max-width: 680px;
 }
 
 /* El retrato ya no vive dentro del <h1>, así que es un bloque por sí mismo:
@@ -384,12 +384,17 @@ nav {
   margin-bottom: 2rem;
 }
 
+/* `align-items: start` y no el estiramiento por defecto: el redactor es más
+   corto que la columna de datos y, al estirarse, el panel #f9fafb seguía cientos
+   de píxeles por debajo de su último chip —un rectángulo gris vacío que parecía
+   un componente a medio cargar—. Ahora cada columna mide lo que ocupa. */
 .contact-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4rem;
   max-width: 900px;
   margin: 0 auto;
+  align-items: start;
 }
 
 .contact-info h3 {
@@ -736,17 +741,20 @@ footer p {
 }
 
 /* Social */
-/* A 375 px la lista va en dos filas. Con los enlaces a 44.8 px, la separación
-   entre filas baja a 0.5rem —8 px limpios entre un destino y el siguiente— y el
-   relleno inferior cede los 0.65rem que ahora pone cada enlace, para que el aire
-   hasta el botón de abajo se vea igual que antes. W23 mueve esta lista debajo
-   del CTA y entonces ese 3.4rem hay que volver a mirarlo. */
+/* A 375 px la lista va en dos filas y la separación entre filas es de 0.5rem
+   —8 px limpios entre un destino y el siguiente, con los enlaces a 44.8 px—.
+
+   El relleno cambió de lado cuando la lista pasó a ir debajo del botón: los
+   3.4rem de abajo separaban la lista del CTA que venía después, y ahora lo que
+   hay que separar es la lista del CTA que viene antes. Van 2rem arriba, que con
+   los 0.65rem de relleno propio de cada enlace se ven como 42 px, y nada abajo:
+   el aire hasta el final de la sección ya lo pone el relleno del héroe. */
 .social-links {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
   gap: 0.5rem 1rem;
-  padding-bottom: 3.4rem;
+  padding: 2rem 0 0;
 }
 
 .social-links li {

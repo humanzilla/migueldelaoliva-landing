@@ -34,7 +34,7 @@ the doctor first, not effort.
 | W20 — Touch targets below 44×44 | 2 | ✅ Done — 2026-08-13 |
 | W21 — Focus states are effectively unstyled | 2 | ✅ Done — 2026-08-13 |
 | W22 — Legibility: hairline body text, over-tight titles, sub-12 px labels | 2 | ✅ Done — 2026-08-13 |
-| W23 — The stretched composer card and the left-pinned hero | 3 | ⬜ Not started |
+| W23 — The stretched composer card and the left-pinned hero | 3 | ✅ Done — 2026-08-13 |
 | W12b — Voice and tone sweep across all copy | 4 | ⬜ Not started |
 | W27 — `.services-grid` overflows below 390 px | 2 | ✅ Done — 2026-08-13 |
 | W28 — Text on the WhatsApp green fails contrast | 2 | ✅ Done — 2026-08-13 |
@@ -823,7 +823,102 @@ claude "Read TODO.md and implement work item W22: fix three legibility problems 
 
 ---
 
-## W23 — The stretched composer card and the left-pinned hero
+## W23 — The stretched composer card and the left-pinned hero ✅ DONE
+
+### Outcome — 2026-08-13
+
+All five changes landed as written. Files changed: `assets/css/main.css` (+15 −8, ten of which
+are two comments), `layouts/index.html` (the hero block reordered, one attribute pair).
+
+| Change | Before | After |
+| --- | --- | --- |
+| `.contact-grid` | `align-items: stretch` (default) | **`align-items: start`** |
+| Hero order | … intro → **social** → CTA | … intro → **CTA** → social |
+| `<img class="hero-photo">` | `width="96" height="96"` | **`140` / `140`** |
+| `.hero .big-text` max-width | `600px` | **`680px`** |
+| `.social-links` padding | `padding-bottom: 3.4rem` | **`padding: 2rem 0 0`** |
+
+**The grey rectangle is gone, and the number is bigger than the item implies.** At 1440 px the
+composer column was **986.7 px** tall against **336.8 px** of content — **650 px of empty
+`#f9fafb`**. It is now **396.8 px**, and the 60 px below the last chip is the card's own 40 px
+of padding plus the chip row's margin. The columns top-align at y 3892. Fully expanded
+(motive → destinatario → name typed) the card is **895 px** against the info column's 986.7 —
+so it no longer stretches in either state, which is the case the one-line fix could have got
+wrong.
+
+**`.hero-photo` needed no CSS.** The item points at `main.css:123` for the 96 px; there is no
+size there — `.hero-photo` only sets `display`, `border-radius` and `margin-bottom`, and the
+box comes entirely from the HTML attributes. Changing the attributes was the whole change, and
+it is also what keeps the aspect ratio reserved before the image decodes.
+
+**Zero layout shift, measured rather than asserted.** A `PerformanceObserver` on `layout-shift`
+over a fresh load reports **CLS 0.000 at 375 px and at 1440 px**, and the rendered box is
+exactly 140×140.
+
+**The source image is 256×256** (`static/images/profile-miguel-oliva.jpg`, 21 kB). At 140 px
+that is 1.83× — fine on a 2× phone, and it was 2.67× at 96 px, so this spends real headroom.
+**This answers one of W24's open questions and the answer is no:** a 320 px portrait would be
+upscaled from a 256 px source. A note to that effect has been added to W24.
+
+#### The no-JS overlap that W18, W26 and W20 each handed forward is closed
+
+That is the point of moving the social links, and it worked with room to spare:
+
+| Measurement, 375×812, scripting disabled, scroll 0 | W18 | W26 | W20 | **Now** |
+| --- | --- | --- | --- | --- |
+| Hero CTA bottom edge | 757 | 786 | 809.5 | **701.5** |
+| Sticky bar top edge | 740 | 726 | 725.8 | **725.8** |
+| **Overlap** | 17 px | 60 px | 83.7 px | **none — 24.3 px of clearance** |
+
+The CTA moved up **108 px** (719.9 → 611.9) even though the portrait grew 44 px, because the
+152 px social block left from above it and came back 22.4 px shorter.
+
+**The padding floor still does its job, now for the social list.** At the scroll position where
+the hero's bottom edge rests at the viewport bottom — the case `.hero { padding-bottom: 7rem }`
+exists for — the last social link ends at y 700.3 against the bar's 725.8: **25.5 px clear**,
+matching the ~26 px W18 and W26 left. That number was checked rather than assumed, because the
+element the floor protects is not the same element any more.
+
+**Known and accepted:** with scripting disabled at scroll 0, the always-visible bar covers the
+first row of social links. A fixed bar covers the bottom 86 px of the viewport at every scroll
+position, so *something* is always under it; this trades a covered primary CTA for a covered
+secondary link that scrolls clear immediately. Nothing to fix, and nothing new — it is the same
+mechanism W18 recorded.
+
+**`.social-links` padding — re-decided, as the item asked, not left by inertia.** The 3.4 rem
+underneath was separating the list from the CTA *below* it. With the CTA above, the thing that
+needs separating is on the other side, and the space down to the end of the section is already
+the hero's own padding — 6rem on desktop, 7rem on mobile. So it is `2rem 0 0`: 32 px plus the
+0.65 rem each link carries reads as ~42 px of air under the button, close to the 48 px the
+intro paragraph has above it. The block is **129.6 px** at 375 px, down from 152.
+
+**`.hero .big-text` at 680 px is a real improvement, not just a wider box.** The intro drops
+from **3 lines to 2** at 1440 px, and the longest line goes from ~59 to **67 characters** —
+inside the 65–75 range, measured with a `Range` over the text node rather than estimated. The
+hero still ends at x 890 of 1440, so the fundamental imbalance the Context describes is
+unchanged; that is W24's, and this item is deliberately the conservative version.
+
+Verified in headless Chromium (Playwright MCP) against the built site on `:1407` — 1399–1406
+were avoided per the note about parallel sessions:
+
+| Check | Result |
+| --- | --- |
+| 1440×900, composer collapsed | Columns top-align at 3892; composer 396.8 px vs info 986.7. Screenshot: the card ends under the chips, no grey run-on. |
+| 1440×900, composer fully expanded | 895 px vs 986.7 — still no stretch. `wa.me` href carries the typed name, so W17's flow is intact. |
+| Hero order, 1440 px and 375 px | DOM, visual and accessibility tree all read portrait → h1 → subheading → intro → CTA → social. Tab order follows. |
+| 375×812 | Hero CTA 611.9–701.5, fully above the fold; social block starts at 760.7. |
+| 375×812, scripting disabled (`**/js/**` aborted) | `js-reveal`/`js-sticky` both dropped after the 2 s fallback, all 6 sections at opacity 1, 7 motive links, bar visible with `transform: none`. **No overlap** — see the table above. |
+| Layout shift | CLS **0.000** at 375 px and 1440 px; rendered box 140×140 = the attributes. |
+| Sticky bar with JS, 375 px | Hidden at the top, visible at scroll 2200, hidden again with the composer centred, hidden back at the top. W18's and W26's observer unaffected. |
+| `prefers-reduced-motion: reduce`, 375 px | All sections visible, geometry identical, `transition-duration` 1e-05s. |
+| W20 — touch targets | 23 visible targets at 375 px, 23 at 320 px, 26 at 1440 px, composer expanded — **0 under 44×44** at any of them. |
+| W27 — overflow | `scrollWidth === innerWidth` and **no element escaping the viewport** at 320, 375 and 1440 px. |
+| W22 — regression guards | Story weight 400, title tracking `normal` + `text-wrap: balance`, step label 12 px, `.mission-text` 680 px. |
+| Story and services sections | Untouched — the diff reaches neither, and `.social-links` is used nowhere but the hero. |
+| `hugo --gc --minify` | Clean. |
+
+**Nothing was left undone**, and nothing new was raised: the one finding outside this item's
+scope — the 256 px source image — belongs to W24 and is recorded there.
 
 ### Context
 
@@ -1292,10 +1387,13 @@ is not a call a session should make on its own.
 
 - Whether the hero may change shape at all, or whether W23's conservative version is the end
   of it.
-- Whether a 320 px portrait is wanted, given the current file is a studio headshot at an
+- Whether a 320 px portrait is wanted. ~~given the current file is a studio headshot at an
   unknown source resolution — check `static/images/profile-miguel-oliva.jpg` before promising
-  it will hold up at that size. If it will not, this item needs a new photograph first, which
-  is a request to the doctor.
+  it will hold up at that size.~~ **Measured 2026-08-13 while doing W23: the file is
+  256×256 px, 21 kB.** So a 320 px portrait would be *upscaled* even on a 1× screen, and W23
+  already spent most of the headroom taking it to 140 px (1.83× on a 2× phone, down from
+  2.67×). **This item needs a new photograph first**, at 640 px or more, which is a request to
+  the doctor and not something a session can resolve.
 - Mobile is unaffected either way: it stays single-column.
 
 If the answer is no, mark this item ✅ with an Outcome block saying it was declined and why.
