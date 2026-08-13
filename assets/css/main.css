@@ -747,6 +747,14 @@ footer p {
     padding: 1.5rem;
   }
 
+  /* En móvil los enlaces de navegación no se muestran, así que hasta ahora el
+     encabezado eran 64 px vacíos. Ahora lleva el nombre, y el relleno baja para
+     que la altura no cambie: 0.8rem arriba y abajo más los 38.4 px de la línea
+     son los mismos 64 px de antes. La primera pantalla no pierde nada. */
+  header {
+    padding: 0.8rem 0;
+  }
+
   .nav-links {
     display: none;
   }

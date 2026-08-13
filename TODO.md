@@ -30,12 +30,13 @@ the doctor first, not effort.
 | Item | Wave | Status |
 | --- | --- | --- |
 | W18 — Sticky bar collides with the hero CTA on mobile | 1 | ✅ Done — 2026-08-12 |
-| W19 — The mobile header is 64 px of nothing | 2 | ⬜ Not started |
+| W19 — The mobile header is 64 px of nothing | 2 | ✅ Done — 2026-08-13 |
 | W20 — Touch targets below 44×44 | 2 | ⬜ Not started |
 | W21 — Focus states are effectively unstyled | 2 | ⬜ Not started |
 | W22 — Legibility: hairline body text, over-tight titles, sub-12 px labels | 2 | ⬜ Not started |
 | W23 — The stretched composer card and the left-pinned hero | 3 | ⬜ Not started |
 | W12b — Voice and tone sweep across all copy | 4 | ⬜ Not started |
+| W27 — `.services-grid` overflows below 390 px | 2 | ⬜ Not started |
 | W26 — One way in: every CTA leads to the composer | 1 | ✅ Done — 2026-08-12 |
 | W24 — Two-column hero | — | ⏸️ Blocked — needs an owner decision |
 | W25 — Verify on a real phone over a real connection | — | ⏸️ Blocked — needs hardware |
@@ -266,7 +267,61 @@ claude "Read TODO.md and implement work item W18: stop the sticky WhatsApp bar f
 
 ---
 
-## W19 — The mobile header is 64 px of nothing
+## W19 — The mobile header is 64 px of nothing ✅ DONE
+
+### Outcome — 2026-08-13
+
+The doctor's name now sits in the header, read from `site.Params.hero.name`, and the mobile
+header is still exactly 64 px. Files changed: `layouts/partials/header.html`,
+`assets/css/main.css`.
+
+- **`header.html`** — one `<a class="logo">` as the first child of `<nav>`, before the
+  `<ul class="nav-links">`. `.logo` was already styled at `main.css:64` and unused, as the
+  item said; **no new CSS rule was needed for it**, only the mobile padding below.
+- **`href="#"` — the choice, and why.** It scrolls to the top with no network request, which
+  `href="/"` cannot do: a mis-tap on a phone over mobile data in Santa Cruz would cost a full
+  page reload. The price is the two things the item names — a `#` left in the URL and a
+  history entry — both verified and both accepted. Measured: from `scrollY 2000` the click
+  lands at `scrollY 0`, `location.href` becomes `/#`, `history.length` grows by one, no
+  reload. `scroll-behavior: smooth` (`main.css:699`) applies, and it is already inside the
+  `prefers-reduced-motion: no-preference` block, so a reduced-motion visitor gets a jump.
+- **Accessible name**: `aria-label="Dr. Miguel de la Oliva — volver al inicio de la página"`.
+  The visible text is just the name, which does not say where the link goes; the label does,
+  per `CLAUDE.md`'s micro-copy rule. Infinitive, not an imperative — the interface-imperative
+  exception is fenced at two strings and this does not join them. Confirmed in the
+  accessibility tree as `link "Dr. Miguel de la Oliva — volver al inicio de la página"`.
+- **Deviation — the mobile header padding moved.** The item says the header must not grow
+  taller, and adding a 24 px/weight-800 line to a 2rem-padded box makes it 102 px. So the
+  768 px block now carries `header { padding: 0.8rem 0 }`: 12.8 px × 2 plus the 38.4 px line
+  box is 64.0 px, the same height as the empty header it replaces. Nothing below it moved —
+  the hero still starts at y 64 and `.hero-actions` still at y 696, which is the number W18
+  and W23 both care about.
+- **Desktop grew 12.8 px, deliberately: 89.6 px → 102.4 px.** The 24 px logo's line box
+  (38.4 px) is taller than the nav pills (25.6 px), so it sets the nav height. The item's
+  "do not grow" is written about the ≤768 px case and the desktop cost is 13 px on a 900 px
+  viewport, so it was left rather than crushing `.logo`'s line-height. Say so here in case a
+  later item measures the header and wonders.
+- **No hamburger.** Nav links stay hidden at ≤768 px, as instructed.
+
+Verified in headless Chromium (Playwright MCP) against the built site on `:1401` — 1399 was
+avoided per the note about parallel sessions:
+
+| Check | Result |
+| --- | --- |
+| 375×812 | Name visible, **one line** (`getClientRects().length === 1`), 234.78 px of the 335 px content width. Header 63.98 px — unchanged. No horizontal overflow. |
+| 320×700 | Still one line, still 234.78 px in 280 px of content — fits. Header 63.98 px. (Page overflows 50 px here, but not from this item — see **W27**.) |
+| 769×800 | The breakpoint's other side: logo ends at x 275, first nav pill starts at x 379, 104 px of gap. No overlap, no overflow. |
+| 1440×900 | Logo left at x 210, the three pills right at 880–1230. Header 102.39 px. |
+| Accessibility tree | `banner → navigation "Navegación principal" → link "Dr. Miguel de la Oliva — volver al inicio de la página"`, then the list. Reads as a sentence. |
+| Heading outline | One `h1` ("Psiquiatra en Santa Cruz de la Sierra"), then the same five `h2`s. Unchanged — the logo is an `<a>`, not a heading. |
+| Logo click | `scrollY 2000 → 0`, `href → /#`, one history entry, no reload. |
+| `hugo --gc --minify` | Clean. |
+
+**For W20:** the logo is a new interactive target and it is **38.4 px tall**, under the 44 px
+minimum — it belongs on W20's list, which is why the wave order puts W19 first. Note the
+constraint it inherits: raising it to 44 px pushes the mobile header past the 64 px this item
+just held. Either drop `header`'s mobile padding to ~0.6rem to absorb the extra 5.6 px, or
+record the header as a deliberate exception. Do not silently undo the 64 px.
 
 ### Context
 
@@ -605,6 +660,64 @@ claude "Read TODO.md and implement work item W23: add align-items:start to .cont
 
 ---
 
+## W27 — `.services-grid` overflows the viewport below 390 px
+
+**Found while verifying W19 at 320 px. Pre-existing — nothing in W19 caused it, and it is
+not a regression from any round-2 item.** Raised here rather than fixed there, per the
+completion protocol.
+
+### Context
+
+```css
+.services-grid { grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); }  /* main.css:243 */
+```
+
+The `768 px` block collapses `.story-grid` and `.contact-grid` to `1fr` but **not**
+`.services-grid`, so its track floor stays 350 px at every width. With `.container`'s 20 px
+of mobile padding on each side, the grid needs **390 px** of viewport to fit.
+
+Measured against the built site:
+
+| Viewport | Result |
+| --- | --- |
+| 320 px | Every `.service-item` is 350 px wide and ends at x 370 — **50 px of horizontal overflow**, the whole page scrolls sideways |
+| 375 px | 350 px wide, ends at x 370 of 375. No document overflow, so nothing flagged it — but the five service cards sit 15 px past the container gutter and 5 px from the screen edge, while everything else on the page respects 20 px |
+
+That second row is why both rounds of review missed it: **the round-2 review checked 375 px
+and 1440 px and correctly reported "no horizontal overflow"**. It is true at 375 px. It stops
+being true at 360 px (a very common Android width) and below.
+
+The section is the five `data/services.yaml` entries — the copy carrying the site's thesis
+about autism and addiction, so it is not a minor corner of the page.
+
+### Instructions
+
+- Add `.services-grid { grid-template-columns: 1fr }` to the existing `@media (max-width:
+  768px)` block, next to the `.story-grid, .contact-grid` rule that already does exactly
+  this. Adding it to that same selector list is the smaller change and probably the right
+  one — check that `.services-grid`'s `gap: 2rem` still reads correctly stacked, since the
+  neighbouring rule also drops the gap to `2rem`.
+- Alternatively lower the `minmax` floor so the track can shrink. Prefer the media-query fix:
+  it matches how the other two grids are already handled and does not change desktop.
+- Do not touch the desktop layout — `auto-fit` at ≥769 px is doing the right thing.
+
+### Verify
+
+- 320 px, 360 px and 375 px: `document.documentElement.scrollWidth === window.innerWidth`,
+  and every `.service-item` sits inside the container gutter (left edge x 20, right edge
+  x `innerWidth - 20`).
+- 1440 px: the services section is unchanged — same column count, same widths.
+- No other element overflows at 320 px. The sweep that found this one only reported
+  `.service-item` and its children, but re-run it after the fix rather than assuming.
+
+### Start command
+
+```bash
+claude "Read TODO.md and implement work item W27: .services-grid keeps a 350px minmax floor at every width, so it overflows the viewport below 390px. Collapse it to a single column inside the existing 768px media block, as .story-grid and .contact-grid already are. Verify at 320px, 360px and 375px that nothing overflows and every .service-item respects the container gutter, and that 1440px is unchanged. When finished, mark W27 done in TODO.md per the Completion protocol."
+```
+
+---
+
 ## W12b — Voice and tone sweep across all copy
 
 **Carried over from round 1, still unfinished. Run LAST** — it edits the final text of
@@ -845,7 +958,7 @@ this round's parallelism, the same way `layouts/index.html` was last round's.
 
 | File | Items that write to it |
 | --- | --- |
-| `assets/css/main.css` | W18, W19, W20, W21, W22, W23 |
+| `assets/css/main.css` | W18, W19, W20, W21, W22, W23, W27 |
 | `layouts/index.html` | W23, W12b |
 | `layouts/partials/header.html` | W19, W12b |
 | `assets/js/main.js` | W18, W26 |
@@ -872,6 +985,9 @@ so W23 measures against a fixed page.
 
 **W19 → W20 → W21 → W22.** All four are `main.css`, in unrelated regions, and W19 adds one
 line to `header.html`. Comfortably one session, four commits.
+
+**W27** was raised by W19 and belongs in this wave too — it is one line in the same 768 px
+block W19 and W20 both edit, so run it anywhere in the serial chain rather than concurrently.
 
 Order matters slightly: W19 before W20, because W19 adds the header link and W20 then sizes
 every target including that one.
@@ -936,7 +1052,9 @@ Credit where the site is already right, so nobody "fixes" it:
 
 - **Contrast passes 4.5:1 at all 18 text styles measured**, in both light panels and the dark
   `.mission` band.
-- **No horizontal overflow and no element escaping the viewport at 375 px.**
+- **No horizontal overflow and no element escaping the viewport at 375 px** — true, and true
+  *only* at 375 px. `.services-grid` overflows at 360 px and below; found while verifying
+  W19 and now tracked as **W27**.
 - **`prefers-reduced-motion` is handled properly**, at two levels — the reveal never arms and
   a global block zeroes every transition.
 - **The no-JS composer fallback genuinely works**, and W17 verified it by aborting the Alpine

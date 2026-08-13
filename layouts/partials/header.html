@@ -1,5 +1,10 @@
 <header>
   <nav class="container" aria-label="Navegación principal">
+    {{/* El nombre es la señal de confianza más barata que tiene la página y hasta
+         ahora no aparecía arriba en ningún lado. Sale de `params.hero.name`, la
+         misma clave que lee schema.html como `alternateName`; nunca escrito a
+         mano. El `aria-label` dice a dónde lleva, que el nombre solo no lo dice. */}}
+    <a class="logo" href="#" aria-label="{{ site.Params.hero.name }} — volver al inicio de la página">{{ site.Params.hero.name }}</a>
     <ul class="nav-links">
       <li><a href="#historia">Mi historia</a></li>
       <li><a href="#servicios">Qué hago</a></li>
