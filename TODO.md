@@ -1792,7 +1792,8 @@ links it moves.
 **W12b** (copy sweep) — by definition operates on the final text of everything above,
 including the header string W19 introduces.
 
-Then a full verification pass, per `CLAUDE.md`:
+Then a full verification pass, per `CLAUDE.md`. ✅ **Run 2026-08-13 — all six checks pass.
+See «Round-closing verification» below for the numbers.**
 
 ```bash
 hugo --gc --minify && python3 -m http.server 1399 --directory public
@@ -1814,6 +1815,41 @@ W18 → [W19 → W20 → W21 → W22] → W23 → W12b
 
 Nothing here is genuinely parallel and nothing needs to be. W24 and W25 sit off the path
 entirely, both blocked on someone other than a coding session.
+
+## Round-closing verification — 2026-08-13 ✅ DONE
+
+The pass Wave 4 calls for, run after W12b landed (`94d3ff2`) against the built site on
+`:1409`. **All six checks pass. No defect found, so no code changed and no new item raised.**
+Playwright MCP, headless Chromium, per `CLAUDE.md`.
+
+| Check | Result |
+| --- | --- |
+| **Network log** | On a fresh 1440×900 load: 8 requests, **zero to Google Maps**. After a deliberate click on the facade: **23 Maps requests**. W14's facade does exactly what it claims. GA4 is the one documented third party and it loads under the DNT gate — payload is `en=page_view` with `npa=1`, no motive, no health data (W15 / prohibition 6 intact). |
+| **Contrast** | **34 combinations, zero failures**, weakest **4.63:1** (`#6b7280` on `#f9fafb`). Sweep descends into `<span>`s and resolves the painted ancestor background, composer expanded — W28's baseline reproduced exactly. |
+| **Focus rings** | **26 distinct stops at 1440×900, 23 at 375×812.** Every one `2px solid rgb(31,41,55)`, every one `:focus-visible`, **zero UA fallbacks**. `.map-facade` keeps its deliberate `-2px` offset; everything else `+2px`. A mouse click on a chip leaves `:focus-visible false` / `outline-style: none` — no lingering ring. |
+| **Reduced motion** | 6 sections all at opacity 1, `js-reveal` never armed, the only non-zero transition duration on the page is **1e-05s**. W22's guards still hold under it: tracking `normal`, story weight 400, step label 12 px. No overflow. |
+| **Scripting disabled** (`**/js/**` aborted) | 6 sections visible, `js-reveal` **and** `js-sticky` both dropped by the 2 s fallbacks, 7 motive links present, composer steps still `hidden`, bar `display: block` / `visible` / `transform: none`. **Hero CTA bottom 702 vs bar top 739 — 37 px of clearance, no overlap.** W23's fix holds. |
+| **Accessibility tree** | One `h1`, clean `h1 → h2 → h3` outline with no skipped level, 14 headings. Landmarks: `header`, `nav "Navegación principal"`, `main`, `footer`. `lang="es"`. All 28 accessible names read as sentences (W12b). |
+
+Two extras, since this is the round-closing pass and both were regression risks:
+
+- **Touch targets (W20)** — **zero under 44×44 at every one of 320/360/375/390/414/768/769/
+  1440 px**, composer expanded. 24 targets below the breakpoint, 26 above.
+- **Overflow (W27)** — `scrollWidth === clientWidth` and **no element escaping the viewport**
+  at all eight of those widths. Checked at 320 px, which is the width that hid this for two
+  rounds.
+- **Sticky bar observer (W18 + W26)** — hidden at the top, visible mid-page, hidden again with
+  the composer on screen, hidden back at the top. All four states correct.
+
+**One baseline correction, recorded so the next session does not read it as a regression.**
+W21's Outcome says *"22 stops"* at 1440 px with the composer expanded; this pass measures
+**26**. Nothing was added — 26 is exactly the count W23 measured independently as "26 visible
+targets at 1440 px", and 375 px agrees at 23 in both items. W21 ran two commits before W23 and
+its 22 almost certainly did not have the persona step open. **Quote 26/23, not 22/23.**
+
+**Not covered here, and it is the one thing this pass cannot do:** every number above is
+headless Chromium against `localhost`. **W25** is still open and still blocked on hardware —
+nobody has seen this on a real phone over a real connection.
 
 ## What is deliberately not in this round
 
