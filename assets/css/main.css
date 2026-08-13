@@ -71,12 +71,17 @@ input:focus-visible {
   color: #4b5563;
 }
 
+/* «¿Quién soy y por qué hago esto?» es el titular más largo de la página y en
+   móvil se partía mal. Se reparte el texto entre las líneas en lugar de apretar
+   las letras; donde «text-wrap» no exista, el título simplemente se parte como
+   siempre. */
 .section-title {
   font-size: 2.5rem;
   font-weight: 800;
   line-height: 1.2;
   margin-bottom: 2rem;
   color: #1f2937;
+  text-wrap: balance;
 }
 
 /* Header */
@@ -232,8 +237,11 @@ nav {
   align-items: start;
 }
 
+/* Peso 400, no 200. El contraste medido pasaba de sobra en cualquier caso, pero
+   el contraste no mide el grosor del trazo: a 200 la letra queda en filamento y
+   este es el relato que sostiene la página entera. */
 .story-text p {
-  font-weight: 200;
+  font-weight: 400;
   font-size: 1.125rem;
   line-height: 1.7;
   margin-bottom: 1.5rem;
@@ -325,8 +333,11 @@ nav {
   margin-bottom: 2.5rem;
 }
 
+/* A 800 px la línea llegaba a 89 caracteres; a 680 se queda en 72, dentro de lo
+   que se lee cómodo. Sigue centrada y ocupa las mismas cinco líneas, así que la
+   franja no cambia de alto. */
 .mission-text {
-  max-width: 800px;
+  max-width: 680px;
   margin: 0 auto;
   font-size: 1.25rem;
   line-height: 1.7;
@@ -595,7 +606,7 @@ nav {
    compiten con el h3 de la tarjeta si se les da tamaño. */
 .composer-step__label {
   display: block;
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.11em;
   text-transform: uppercase;
@@ -788,7 +799,6 @@ footer p {
 
   .section-title {
     font-size: 2rem;
-    letter-spacing: -0.1em;
   }
 
   .story-grid,

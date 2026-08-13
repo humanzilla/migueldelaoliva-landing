@@ -33,10 +33,11 @@ the doctor first, not effort.
 | W19 — The mobile header is 64 px of nothing | 2 | ✅ Done — 2026-08-13 |
 | W20 — Touch targets below 44×44 | 2 | ✅ Done — 2026-08-13 |
 | W21 — Focus states are effectively unstyled | 2 | ✅ Done — 2026-08-13 |
-| W22 — Legibility: hairline body text, over-tight titles, sub-12 px labels | 2 | ⬜ Not started |
+| W22 — Legibility: hairline body text, over-tight titles, sub-12 px labels | 2 | ✅ Done — 2026-08-13 |
 | W23 — The stretched composer card and the left-pinned hero | 3 | ⬜ Not started |
 | W12b — Voice and tone sweep across all copy | 4 | ⬜ Not started |
 | W27 — `.services-grid` overflows below 390 px | 2 | ⬜ Not started |
+| W28 — Text on the WhatsApp green fails contrast | 2 | ⬜ Not started |
 | W26 — One way in: every CTA leads to the composer | 1 | ✅ Done — 2026-08-12 |
 | W24 — Two-column hero | — | ⏸️ Blocked — needs an owner decision |
 | W25 — Verify on a real phone over a real connection | — | ⏸️ Blocked — needs hardware |
@@ -678,7 +679,77 @@ claude "Read TODO.md and implement work item W21: add a global :focus-visible ri
 
 ---
 
-## W22 — Legibility: hairline body text, over-tight titles, sub-12 px labels
+## W22 — Legibility: hairline body text, over-tight titles, sub-12 px labels ✅ DONE
+
+### Outcome — 2026-08-13
+
+All three defects fixed, plus the optional `.mission-text` measure. Only file changed:
+`assets/css/main.css` (+14 −4).
+
+| Change | Before | After |
+| --- | --- | --- |
+| `.story-text p` weight | 200 | **400** |
+| `.section-title` mobile tracking | `-0.1em` | **removed** |
+| `.section-title` base | — | **`text-wrap: balance`** |
+| `.composer-step__label` | `0.7rem` (11.2 px) | **`0.75rem` (12 px)** |
+| `.mission-text` max-width | `800px` | **`680px`** |
+
+- **Weight 400, not 300.** The screenshot at 400 reads as body copy, not as display type,
+  and it is not heavy against the `#f9fafb` panel — so there was no reason to take the
+  compromise. **The change is real and measured, not just declared:** the four weights
+  resolve to genuinely distinct faces in the system stack (the string "Nací en La Paz" is
+  114.64 px at 200, 116.20 at 300, 117.81 at 400, 123.34 at 700), and ink coverage over the
+  first paragraph rose **0.0778 → 0.1009, +30 %**. Worth knowing for the next session: at
+  18 px the difference is subtle in a headless screenshot despite that number — trust the
+  measurement over the eye here, and remember the audience is on iOS and Android, where SF
+  and Roboto both ship real Thin/Light faces and the hairline problem is at its worst.
+- **No layout shift from the weight change, at all.** Line counts per paragraph are
+  identical at 200, 300 and 400 (6/8/5/3/3/2 at 375 px), `.story-text` stays 939 px and
+  `.story-grid` 1413 px. The ~2.7 % width delta never crossed a break boundary.
+- **`text-wrap: balance` earns its place — it is not decoration.** Measured line widths for
+  "¿Quién soy y por qué hago esto?" at 375 px: **251/234 with balance, 315/169 without**.
+  Screenshots of the old and new states are the clearest evidence in this item: at `-0.1em`
+  the heading renders as `¿Quiénsoyyyporquéhago / esto?` with words visibly fused; with
+  normal tracking the letters are plainly separated.
+- **Removing the tracking costs one extra line on one heading**, and this is the trade the
+  item asked for: "Mi propósito es simple" goes from 1 line to 2 at 375 px (38 → 77 px). The
+  other three are unchanged in line count. At ≥769 px all four are single-line, so
+  `text-wrap: balance` has **no desktop effect whatsoever** — nothing about the desktop
+  layout moved.
+- **`.mission-text` — the optional change was taken, and the item's premise was understated.**
+  It reports 80 characters per line at 1440 px; measured against a real character advance
+  (8.86 px at 20 px), the two long lines are **89 and 88 characters**, well past the 65–75
+  range rather than at the top of it. At `680px` they become **72 and 73**. It qualifies as
+  the item's "one-line change that does not disturb the centred layout": same 5 line boxes,
+  same 384 px band height, still centred (380 px of gutter each side), and no mobile effect
+  at all since the container caps it at 335 px there.
+- **`.hero .big-text` checked and left alone**, as the item allows: 22 px / weight 400 /
+  43 characters per line. It reads well; nothing to do.
+- **Knock-on: the composer card grew 4.7 px at 375 px** (910.3 → 915) from the four 12 px
+  step labels. Recorded because W20 measured that number; nothing else in the composer moved.
+
+**Verify caught a defect outside this item's scope — raised as W28, not fixed here.** The
+item says all 18 measured text styles pass 4.5:1 "and that must remain true". Re-running the
+sweep, **nothing regressed — no colour was touched, and the diff proves it** — but the sweep
+enumerated **34** distinct combinations rather than 18, because it descends into the inner
+`<span>`s of buttons and resolves the painted ancestor background. Three of those 34 fail,
+all of them text on the WhatsApp green `#25d366`, all pre-existing. The worst is visibly
+wrong in a screenshot. See **W28**.
+
+Verified in headless Chromium (Playwright MCP) against the built site on `:1404`:
+
+| Check | Result |
+| --- | --- |
+| 375×812, all four `.section-title`s | No tracking, balanced wrap, **none escaping the viewport**. Screenshot: letters clearly separated. |
+| 320 / 360 / 375 / 414 / 768 / 769 / 1440 px | **No section title escapes at any width.** Only overflow anywhere is the pre-existing **W27** `.service-item` (50 px at 320, 10 px at 360) — unchanged. |
+| Story text, 375 px and 1440 px | Weight 400, 18 px, `#374151`; 50 chars/line at 1440. Reads as body copy. |
+| Story grid layout shift | None — identical line counts and heights at 200/300/400. |
+| Composer step labels, composer expanded, 375 px | All four **12 px, one line each**, 287 px wide. |
+| `.mission-text`, 1440 px | 680 px, 72/73 chars max, 5 lines, band still 384 px, still centred. |
+| Contrast sweep, 34 combinations | Nothing regressed. 3 pre-existing failures, all on `#25d366` → **W28**. |
+| `prefers-reduced-motion: reduce` | All sections visible; tracking normal, `balance` applied, weight 400, label 12 px, no overflow. |
+| Scripting disabled (`**/js/**` aborted) | All sections visible, labels 12 px and one line, 7 motive links present, no overflow. W8 intact. |
+| `hugo --gc --minify` | Clean. |
 
 ### Context
 
@@ -882,6 +953,68 @@ about autism and addiction, so it is not a minor corner of the page.
 ```bash
 claude "Read TODO.md and implement work item W27: .services-grid keeps a 350px minmax floor at every width, so it overflows the viewport below 390px. Collapse it to a single column inside the existing 768px media block, as .story-grid and .contact-grid already are. Verify at 320px, 360px and 375px that nothing overflows and every .service-item respects the container gutter, and that 1440px is unchanged. When finished, mark W27 done in TODO.md per the Completion protocol."
 ```
+
+---
+
+## W28 — Text on the WhatsApp green fails contrast, and one button is grey on green
+
+**Found while re-running W22's contrast sweep on 2026-08-13. Pre-existing — no round-2 item
+caused it.** Raised here rather than fixed there, per the completion protocol.
+
+### Context
+
+Both rounds recorded "contrast passes 4.5:1 at all 18 text styles measured". That is true of
+the 18 that were measured. The W22 sweep enumerated **34** distinct
+colour/background/size/weight combinations — it descends into the inner `<span>`s of buttons
+and resolves the nearest *painted* ancestor background rather than the element's own
+transparent one — and three of them fail:
+
+| Element | Colour | On | Size | Ratio |
+| --- | --- | --- | --- | --- |
+| Contact-block phone number | `#6b7280` **grey** | `#25d366` | 15.6 px / 600 | **2.44:1** |
+| `.composer__cta` label | `#ffffff` | `#25d366` | 16 px / 600 | **1.98:1** |
+| `.sticky-cta__link` label | `#ffffff` | `#25d366` | 14.4 px / 600 | **1.98:1** |
+
+**These are two different problems and only the first is unambiguous.**
+
+**1. The grey one is a cascade collision and looks like a bug.** `main.css:419` sets
+
+```css
+.contact-item span,
+.contact-item p { color: #6b7280; font-size: 0.975rem; }
+```
+
+The WhatsApp phone button sits inside a `.contact-item`, so that selector reaches the
+`<span>` *inside* the green button and overrides the white it should inherit from
+`.btn-contact--whatsapp` (`main.css:533`). A screenshot confirms it renders as murky grey
+type on green — it does not read as a deliberate choice, and it is the one direct WhatsApp
+link the owner explicitly chose to keep in W26. Scoping the rule so it does not reach inside
+`.btn-contact` is the obvious fix, but check what else `.contact-item span` legitimately
+styles before narrowing it.
+
+**2. White on `#25d366` at 1.98:1 is the WhatsApp brand button**, and it is what every
+WhatsApp button on the web looks like. Fixing it means either darkening the fill away from
+the brand green or putting dark text on it — both are visual-design decisions, and
+`CLAUDE.md` says the design is settled. **Do not change it unilaterally.** Options worth
+putting to the owner: keep it and accept the ratio on brand grounds; or darken the fill to
+around `#128c7e` (WhatsApp's own darker brand teal), which carries white comfortably. The
+green is doing real work as a channel signal, so "just make it grey" is not an answer.
+
+### Instructions
+
+- Fix the grey-on-green phone button. That one is a defect with no design question attached.
+- Raise the white-on-green question with the owner rather than deciding it. Record the answer
+  here either way — a recorded "keep the brand green" is worth as much as a change, and it
+  stops the next contrast sweep re-raising it.
+- While in there, re-run the 34-combination sweep rather than the 18-style one, and record
+  that the larger number is now the baseline.
+
+### Verify
+
+- The contact-block phone button reads white on green, ≥4.5:1, and nothing else that
+  `.contact-item span` styles changed appearance.
+- Re-run the full sweep at 1440 px and 375 px with the composer expanded; the only remaining
+  sub-4.5:1 entries are the brand-green ones, and they are there by a recorded decision.
 
 ---
 
@@ -1125,7 +1258,7 @@ this round's parallelism, the same way `layouts/index.html` was last round's.
 
 | File | Items that write to it |
 | --- | --- |
-| `assets/css/main.css` | W18, W19, W20, W21, W22, W23, W27 |
+| `assets/css/main.css` | W18, W19, W20, W21, W22, W23, W27, W28 |
 | `layouts/index.html` | W23, W12b |
 | `layouts/partials/header.html` | W19, W12b |
 | `assets/js/main.js` | W18, W26 |
@@ -1155,6 +1288,8 @@ line to `header.html`. Comfortably one session, four commits.
 
 **W27** was raised by W19 and belongs in this wave too — it is one line in the same 768 px
 block W19 and W20 both edit, so run it anywhere in the serial chain rather than concurrently.
+**W28** was raised by W22 the same way and sits in the same wave, with the same caveat: its
+`main.css` edit is small, but half of it is a question for the owner rather than a change.
 
 Order matters slightly: W19 before W20, because W19 adds the header link and W20 then sizes
 every target including that one.
@@ -1217,8 +1352,12 @@ Recorded so the next reviewer does not re-derive them:
 
 Credit where the site is already right, so nobody "fixes" it:
 
-- **Contrast passes 4.5:1 at all 18 text styles measured**, in both light panels and the dark
-  `.mission` band.
+- ~~**Contrast passes 4.5:1 at all 18 text styles measured**, in both light panels and the dark
+  `.mission` band.~~ **Superseded 2026-08-13 by W22's re-run.** True of those 18, and the light
+  panels and the `.mission` band are genuinely fine. But a sweep that also descends into the
+  `<span>`s inside buttons finds **34** combinations, and **three fail** — all text on the
+  WhatsApp green. Now tracked as **W28**. Use the 34-combination sweep as the baseline; the
+  18-style figure understates what is on the page.
 - **No horizontal overflow and no element escaping the viewport at 375 px** — true, and true
   *only* at 375 px. `.services-grid` overflows at 360 px and below; found while verifying
   W19 and now tracked as **W27**.
